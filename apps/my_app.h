@@ -6,6 +6,7 @@
 #include <cinder/app/App.h>
 #include <cinder/gl/draw.h>
 #include <cinder/gl/gl.h>
+#include <mylibrary/playing_field.h>
 #include "cinder/app/RendererGl.h"
 
 
@@ -19,7 +20,9 @@ class MyApp : public cinder::app::App {
   void draw() override;
   void keyDown(cinder::app::KeyEvent) override;
 private:
+
     cinder::gl::Texture2dRef mBackground_;
+    mylibrary::PlayingField scene_one;
 };
 
 }  // namespace myapp

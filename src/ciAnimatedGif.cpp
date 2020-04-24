@@ -1,6 +1,6 @@
 // Library from: https://github.com/cwhitney/ciAnimatedGif
 
-#include "ciAnimatedGif.h"
+#include "mylibrary/ciAnimatedGif.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -116,7 +116,13 @@ void ciAnimatedGif::update()
 void ciAnimatedGif::draw()
 {
     update();
-
     gl::draw(mCurTex);
 
+}
+
+void ciAnimatedGif::draw(size_t min_x_coord, size_t min_y_coord, size_t max_x_coord, size_t max_y_coord)
+{
+    update();
+    Rectf drawRect(min_x_coord, min_y_coord, max_x_coord, max_y_coord);
+    gl::draw(mCurTex, drawRect);
 }

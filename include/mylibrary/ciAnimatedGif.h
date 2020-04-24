@@ -11,7 +11,7 @@ namespace cinder {
 
     class ciAnimatedGif {
     public:
-        ciAnimatedGif() = delete;
+        ciAnimatedGif() = default; //was delete before
         ciAnimatedGif(ci::DataSourceRef data);
 
         static ciAnimatedGifRef create(ci::DataSourceRef data){ return std::make_shared<ciAnimatedGif>(data); }
@@ -19,6 +19,8 @@ namespace cinder {
 
         void update();
         void draw();
+        //method added for this specific project:
+        void draw(size_t min_x_coord, size_t min_y_coord, size_t max_x_coord, size_t max_y_coord);
         void play();
         void seek( float pct );
 
