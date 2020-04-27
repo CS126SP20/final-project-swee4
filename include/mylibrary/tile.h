@@ -11,7 +11,7 @@ namespace mylibrary {
     class Tile {
     public:
         Tile();
-        Tile(const string& map_type, string& dynamic_type);
+        Tile(const string& map_type, const string& dynamic_type);
         cinder::gl::Texture2dRef GetStillMapImage();
         cinder::ciAnimatedGifRef GetDynamicImage();
         bool IsSolid();

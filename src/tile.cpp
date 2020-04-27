@@ -10,7 +10,7 @@ namespace mylibrary {
         dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo default.gif"));
     }
 
-Tile::Tile(const string& map_type_input, string& dynamic_type_input) {
+Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
     map_type = map_type_input;
     dynamic_type = dynamic_type_input;
     is_solid = true;

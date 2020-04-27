@@ -21,7 +21,6 @@ namespace mylibrary {
         size_t GetYStartPixel(size_t current_y_tile);
         size_t GetXEndPixel(size_t current_x_tile);
         size_t GetYEndPixel(size_t current_y_tile);
-        void update();
         void draw();
         vector<vector<Tile>> GetTileMap();
 

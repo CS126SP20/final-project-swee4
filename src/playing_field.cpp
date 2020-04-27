@@ -68,12 +68,13 @@ PlayingField::PlayingField(const string& file_name) {
                 std::string current_type;
                 if (line_to_read.empty()) {
                     is_map_section = false;
+                } else {
+                    for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
+                        current_type = line_to_read.substr(index, 3);
+                        row.push_back(current_type);
+                    }
+                    map_types.push_back(row);
                 }
-                for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
-                    current_type = line_to_read.substr(index, 3);
-                    row.push_back(current_type);
-                }
-                map_types.push_back(row);
             }
 
             for (size_t row = 0; row < 8; row++) {
@@ -89,10 +90,6 @@ PlayingField::PlayingField(const string& file_name) {
         }
     }
 }
-
-void PlayingField::update() {
-
-    }
 
 void PlayingField::draw() {
     for (size_t row = 0; row < GetMaxYTiles(); row++) {
