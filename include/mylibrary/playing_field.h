@@ -26,11 +26,12 @@ namespace mylibrary {
 
     private:
         vector<vector<Tile>> tiles;
-        size_t tile_size;
-        size_t max_x_tiles;
-        size_t max_y_tiles;
-        size_t max_x_pixels;
-        size_t max_y_pixels;
+        size_t tile_size{};
+        size_t max_x_tiles{};
+        size_t max_y_tiles{};
+        size_t max_x_pixels{};
+        size_t max_y_pixels{};
+        void SetupTiles();
 };
 }  // namespace mylibrary
 

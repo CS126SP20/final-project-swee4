@@ -17,13 +17,18 @@
     - [x] Text files written to represent scenes one and two
     - [x] Tile Class & PlayingField Class created
     - [x] Getters created for private instances
-    - [ ] Functionality works 
 
 - **4/25/20** Program will not run
     - After trying to implement logic to read the map text files, program has crashed. 
     Will likely need to make another copy of the final project repository. 
     
 - **4/27/20** Will attempt to recreate the project in a new copy of the repository.
+
+- **4/28/20** Program works again, continue progress on loading map
+    - [x] Can read file to store as entire rows in a string vector
+    - [x] PlayingField class can now parse through files to create maps. 
+    Tiles will automatically start out as a blank tile (white background and no 
+    interactive dynamic type).
 
 Ongoing: 
 -[ ] Implement Initializer Lists in Playing Field Constructor

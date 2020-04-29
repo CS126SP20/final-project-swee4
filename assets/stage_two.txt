@@ -1,17 +1,17 @@
- R  .  .  .  .  .  .  .  V  L  L  L
- R  .  .  .  .  .  .  .  V  L  L  L
- R  R  .  .  .  .  .  .  .  L  L  L
- R  R  .  L  L  L  L  L  L  L  H  H
- L  L  L  L  .  .  .  .  .  .  .  L
- R  R  R  .  .  .  .  .  .  .  L  .
- R  R  R  .  .  .  .  .  .  L  L  .
- R  R  R  R  .  .  L  L  L  L  .  .
+ R  .  .  .  .  .  .  .  V  L  L  L |
+ R  .  .  .  .  .  .  .  V  L  L  L |
+ R  R  .  .  .  .  .  .  .  L  L  L |
+ R  R  .  L  L  L  L  L  L  L  H  H |
+ L  L  L  L  .  .  .  .  .  .  L  L |
+ R  R  R  .  .  .  .  .  .  .  L  . |
+ R  R  R  .  .  .  .  .  .  L  L  . |
+ R  R  R  R  .  .  L  L  L  L  .  . |
 
- .  .  .  .  . HP1 .  .  .  .  .  .
- .  .  . BEE .  .  . LS1 .  .  .  .
- .  .  .  .  .  . BEE .  .  .  .  .
- .  .  .  .  . AP2 .  .  .  .  .  .
- .  .  . AD2 .  .  .  .  .  .  .  .
- .  .  .  . AD1 .  . BEEAP1 .  .  .
- .  .  .  .  . BEE .  .  .  . HP2 .
- .  .  .  .  .  .  .  . LS2 .  .  .
+ .  .  .  .  . HP1 .  .  .  .  .  . |
+ .  .  . BEE .  .  . LS1 .  .  .  . |
+ .  .  .  .  .  . BEE .  .  .  .  . |
+ .  .  .  .  . AP2 .  .  .  .  .  . |
+ .  .  . AD2 .  .  .  .  .  .  .  . |
+ .  .  .  . AD1 .  . BEEAP1 .  .  . |
+ .  .  .  .  . BEE .  .  .  . HP2 . |
+ .  .  .  .  .  .  .  . LS2 .  .  . |

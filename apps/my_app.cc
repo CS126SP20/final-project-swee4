@@ -24,6 +24,8 @@ using cinder::app::KeyEvent;
     cinder::ciAnimatedGifRef teemo_default;
     cinder::ciAnimatedGifRef teemo_attack;
 
+    std::string parsed_file = "cheese";
+
 MyApp::MyApp() { }
 
 void MyApp::setup() {
@@ -31,10 +33,70 @@ void MyApp::setup() {
     mGif = cinder::ciAnimatedGif::create( loadAsset("cherry-blossom.gif"));
     teemo_default = cinder::ciAnimatedGif::create( loadAsset("beemo default.gif"));
     teemo_attack = cinder::ciAnimatedGif::create( loadAsset("beemo attack.gif"));
-    scene_one = mylibrary::PlayingField();
+    //scene_one = mylibrary::PlayingField();
     ci::app::setWindowSize(12*64,12*64);
-    //scene_one = mylibrary::PlayingField("stage_one.txt");
+    scene_one = mylibrary::PlayingField("stage_one.txt");
 
+
+    //----------- BEGIN SAVES ENTIRE ROW
+    /*
+    //std::string parsed_file = "cheese";
+
+    std::vector<std::string> map_types;
+    std::ifstream file_reader;
+    file_reader.open(getAssetPath( "stage_one.txt"));
+    if (!file_reader) {
+        parsed_file = "didn't read";
+    }
+    std::string line_to_read;
+    while (std::getline(file_reader, line_to_read)) {
+        map_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
+        //file_reader.close();
+    }
+    std::vector<std::string> ending;
+    map_types.emplace_back("end");
+
+
+    for (std::string row : map_types) {
+        parsed_file += row;
+    }
+     */
+
+    //----------- END SAVES ENTIRE ROW
+
+    //----------- BEGIN SAVES ENTIRE ROWS BY SECTION TYPE
+    /*
+    std::vector<std::string> map_types;
+    std::vector<std::string> dynamic_types;
+    std::ifstream file_reader;
+    file_reader.open(getAssetPath( "stage_one.txt"));
+    if (!file_reader) {
+        parsed_file = "didn't read";
+    }
+    bool is_map_section = true;
+    std::string line_to_read;
+    while (std::getline(file_reader, line_to_read)) {
+        if (line_to_read.empty()) {
+            is_map_section = false;
+        } else if (is_map_section) {
+            map_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
+        } else {
+            dynamic_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
+        }
+    }
+    std::vector<std::string> ending;
+    map_types.emplace_back("end");
+
+    for (const std::string& row : map_types) {
+        parsed_file += row;
+    }
+
+    for (const std::string& row : dynamic_types) {
+        parsed_file += row;
+    }
+    */
+
+    //----------- END SAVES ENTIRE ROWS BY SECTION TYPE
 }
 
 void MyApp::update() { }
@@ -64,7 +126,7 @@ void MyApp::draw() {
      */
 
 
-    std::string parsed_file = "cheese";
+
 
     /** THIS WORKS DONT TOUCH **/
     /*
@@ -194,7 +256,7 @@ void MyApp::draw() {
 
 
     /*
-    std::string parsed_file = "cheese";
+    //std::string parsed_file = "cheese";
 
     std::vector<std::vector<std::string>> map_types;
     std::ifstream file_reader;
@@ -205,7 +267,7 @@ void MyApp::draw() {
     std::string line_to_read;
     while (std::getline(file_reader, line_to_read)) {
         std::vector<std::string> row;
-        for (size_t index = 0; index < 3; index += 3) {
+        for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
             std::string current_type;
             current_type = line_to_read.substr(index, 3);
             row.push_back(current_type);
@@ -223,8 +285,8 @@ void MyApp::draw() {
             parsed_file += current;
         }
     }
-    */
 
+     */
 
 
     const cinder::vec2 center = getWindowCenter();
@@ -247,6 +309,31 @@ void MyApp::draw() {
     const auto surface = box.render();
     const auto texture = cinder::gl::Texture::create(surface);
     cinder::gl::draw(texture, locp);
+
+
+    std::vector<std::vector<mylibrary::Tile>> tiles = scene_one.GetTileMap();
+
+    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
+        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
+            mylibrary::Tile current_tile = tiles[current_y_tile - 1][current_x_tile - 1];
+            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
+            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
+            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
+            size_t end_y = scene_one.GetYEndPixel(current_y_tile);
+            ci::Rectf drawRect(start_x, start_y, end_x, end_y);
+            ci::gl::draw(current_tile.GetStillMapImage(), drawRect);
+            if (current_tile.IsDynamic()) {
+                current_tile.GetDynamicImage()->draw(start_x, start_y, end_x, end_y);
+            }
+            //
+        }
+    }
+
+    /*
+    ci::Rectf drawRect(0, 0, 64, 64);
+    ci::gl::draw(tiles[0][2].GetStillMapImage(), drawRect);
+    tiles[0][2].GetDynamicImage()->draw(0,0,64,64);
+    */
 
 
 
