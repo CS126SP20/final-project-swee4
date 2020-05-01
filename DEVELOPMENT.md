@@ -29,6 +29,17 @@
     - [x] PlayingField class can now parse through files to create maps. 
     Tiles will automatically start out as a blank tile (white background and no 
     interactive dynamic type).
+    
+- **4/29/30** Work on having the correct gifs for the dynamic images.
+    - [x] Implement minion default graphics.
+    
+- **4/30/30** Further implement user interaction and appropriate responses.
+    - [x] Beemo can move around and will turn accordingly based on direction.
+    - [x] Beemo movement is contained within the bounds of the playing field.
+    - [x] Beemo will not walk into solid objects.
+    - [ ] Implement minion attack response graphics.
+    - [ ] Save dynamic states based on the item that is hidden that will be revealed
+    upon interaction. 
 
 Ongoing: 
 -[ ] Implement Initializer Lists in Playing Field Constructor

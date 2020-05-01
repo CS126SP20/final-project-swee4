@@ -23,7 +23,7 @@ namespace mylibrary {
         size_t GetYEndPixel(size_t current_y_tile);
         void draw();
         vector<vector<Tile>> GetTileMap();
-
+        Tile GetTile(size_t x_index, size_t y_index);
     private:
         vector<vector<Tile>> tiles;
         size_t tile_size{};

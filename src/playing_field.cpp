@@ -2,7 +2,6 @@
 
 #include <mylibrary/playing_field.h>
 #include <iostream>
-#include <fstream>
 
 namespace mylibrary {
     using std::ifstream;
@@ -114,6 +113,10 @@ void PlayingField::draw() {
     }
     size_t PlayingField::GetYEndPixel(size_t current_y_tile) {
         return current_y_tile * tile_size;
+    }
+
+    Tile PlayingField::GetTile(size_t x_index, size_t y_index) {
+        return tiles[y_index - 1][x_index - 1];
     }
 
 }  // namespace mylibrary

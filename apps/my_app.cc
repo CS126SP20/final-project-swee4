@@ -9,7 +9,6 @@
 
 #include <cinder/app/App.h>
 #include <mylibrary/playing_field.h>
-#include <fstream>
 #include <iostream>
 
 
@@ -19,275 +18,29 @@ using cinder::app::KeyEvent;
     using cinder::Color;
     using cinder::TextBox;
     using cinder::ColorA;
+    using std::string;
 
-    cinder::ciAnimatedGifRef mGif;
     cinder::ciAnimatedGifRef teemo_default;
     cinder::ciAnimatedGifRef teemo_attack;
 
     std::string parsed_file = "cheese";
 
-MyApp::MyApp() { }
-
+MyApp::MyApp() {
+}
 void MyApp::setup() {
-    mBackground_ = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("grass.png")));
-    mGif = cinder::ciAnimatedGif::create( loadAsset("cherry-blossom.gif"));
     teemo_default = cinder::ciAnimatedGif::create( loadAsset("beemo default.gif"));
     teemo_attack = cinder::ciAnimatedGif::create( loadAsset("beemo attack.gif"));
-    //scene_one = mylibrary::PlayingField();
     ci::app::setWindowSize(12*64,12*64);
     scene_one = mylibrary::PlayingField("stage_one.txt");
-
-
-    //----------- BEGIN SAVES ENTIRE ROW
-    /*
-    //std::string parsed_file = "cheese";
-
-    std::vector<std::string> map_types;
-    std::ifstream file_reader;
-    file_reader.open(getAssetPath( "stage_one.txt"));
-    if (!file_reader) {
-        parsed_file = "didn't read";
-    }
-    std::string line_to_read;
-    while (std::getline(file_reader, line_to_read)) {
-        map_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
-        //file_reader.close();
-    }
-    std::vector<std::string> ending;
-    map_types.emplace_back("end");
-
-
-    for (std::string row : map_types) {
-        parsed_file += row;
-    }
-     */
-
-    //----------- END SAVES ENTIRE ROW
-
-    //----------- BEGIN SAVES ENTIRE ROWS BY SECTION TYPE
-    /*
-    std::vector<std::string> map_types;
-    std::vector<std::string> dynamic_types;
-    std::ifstream file_reader;
-    file_reader.open(getAssetPath( "stage_one.txt"));
-    if (!file_reader) {
-        parsed_file = "didn't read";
-    }
-    bool is_map_section = true;
-    std::string line_to_read;
-    while (std::getline(file_reader, line_to_read)) {
-        if (line_to_read.empty()) {
-            is_map_section = false;
-        } else if (is_map_section) {
-            map_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
-        } else {
-            dynamic_types.push_back(line_to_read.substr(0, line_to_read.size() - 1));
-        }
-    }
-    std::vector<std::string> ending;
-    map_types.emplace_back("end");
-
-    for (const std::string& row : map_types) {
-        parsed_file += row;
-    }
-
-    for (const std::string& row : dynamic_types) {
-        parsed_file += row;
-    }
-    */
-
-    //----------- END SAVES ENTIRE ROWS BY SECTION TYPE
+    scene_two = mylibrary::PlayingField("stage_two.txt");
+    current_scene = scene_one;
+    beemo = mylibrary::Character(1,8,64,"beemo default.gif");
 }
 
 void MyApp::update() { }
 
 void MyApp::draw() {
-    //ci::gl::translate(1,1);
     cinder::gl::clear();
-    //mGif->draw(0,0,getWindowWidth(), getWindowHeight());
-    teemo_default->draw();
-    teemo_attack->draw(704,448,768,512);
-    /*
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
-            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
-            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
-            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
-            size_t end_y =scene_one.GetYEndPixel(current_y_tile);
-            ci::Rectf drawRect(start_x, start_y, end_x, end_y);
-            ci::gl::draw(mBackground_, drawRect);
-            teemo_default->draw(start_x, start_y, end_x, end_y);
-        }
-    }
-    //ci::Rectf drawRect(0, 0, 64, 64);
-    //ci::gl::draw(mBackground_, drawRect);
-    teemo_default->draw();
-    teemo_attack->draw(704,448,768,512);
-     */
-
-
-
-
-    /** THIS WORKS DONT TOUCH **/
-    /*
-
-    std::vector<std::vector<std::string>> map_types;
-    std::ifstream file_reader("stage_one.txt");
-    if (file_reader.is_open()) {
-        std::cout << "file open";
-        std::string line_to_read;
-        bool is_map_section = true;
-        while (std::getline(file_reader, line_to_read)) {
-            if (is_map_section) {
-                std::vector <std::string> row;
-                std::string current_type;
-                if (line_to_read.empty()) {
-                    is_map_section = false;
-                } else {
-                    for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
-                        current_type = line_to_read.substr(index, 3);
-                        row.push_back(current_type);
-                    }
-                    map_types.push_back(row);
-                }
-            }
-        }
-    }
-
-    std::vector<std::vector<mylibrary::Tile>> tiles;
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        std::vector<mylibrary::Tile> row;
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
-           row.emplace_back(mylibrary::Tile(" G ", "BEE"));
-        }
-        tiles.push_back(row);
-    }
-
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
-            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
-            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
-            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
-            size_t end_y =scene_one.GetYEndPixel(current_y_tile);
-            ci::Rectf drawRect(start_x, start_y, end_x, end_y);
-            ci::gl::draw(tiles[current_y_tile - 1][ current_x_tile - 1].GetStillMapImage(), drawRect);
-            tiles[current_y_tile - 1][current_x_tile - 1].GetDynamicImage()->draw(start_x,start_y,end_x,end_y);
-        }
-    }
-
-     */
-    /** END OF DONT TOUCH **/
-
-    //------------- WORKS ON FIRST LINE ONLY
-
-    /*
-    std::string parsed_file = "cheese";
-
-    std::vector<std::vector<std::string>> map_types;
-    std::ifstream file_reader;
-    file_reader.open(getAssetPath( "stage_one.txt"));
-    if (!file_reader) {
-        parsed_file = "didn't read";
-    }
-
-    if (file_reader.is_open()) {
-        std::string line_to_read;
-        bool is_map_section = true;
-        std::vector<std::string> row;
-        while (std::getline(file_reader, line_to_read)) {
-            std::string current_type;
-            for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
-                current_type = line_to_read.substr(index, 3);
-                row.push_back(current_type);
-            }
-            map_types.push_back(row);
-            file_reader.close();
-        }
-        std::vector<std::string> ending;
-        ending.push_back("end");
-        map_types.push_back(ending);
-    }
-
-
-    for (std::vector<std::string> row : map_types) {
-        for (std::string current : row) {
-            parsed_file += current;
-        }
-    }
-
-     */
-    //------------ END OF WORKS ON FIRST LINE ONLY
-
-    //------------ BEGIN OF WORKS ON FIRST THREE CHARACTERS ONLY
-
-    /*
-    std::string parsed_file = "cheese";
-
-    std::vector<std::vector<std::string>> map_types;
-    std::ifstream file_reader;
-    file_reader.open(getAssetPath( "stage_one.txt"));
-    if (!file_reader) {
-        parsed_file = "didn't read";
-    }
-        std::string line_to_read;
-        while (std::getline(file_reader, line_to_read)) {
-            std::vector<std::string> row;
-            for (size_t index = 0; index < 3; index += 3) {
-                std::string current_type;
-                current_type = line_to_read.substr(index, 3);
-                row.push_back(current_type);
-            }
-            map_types.push_back(row);
-            //file_reader.close();
-        }
-        std::vector<std::string> ending;
-        ending.emplace_back("end");
-        map_types.push_back(ending);
-
-
-    for (std::vector<std::string> row : map_types) {
-        for (std::string current : row) {
-            parsed_file += current;
-        }
-    }
-
-     */
-    //------------ END OF WORKS ON FIRST THREE CHARACTERS ONLY
-
-
-    /*
-    //std::string parsed_file = "cheese";
-
-    std::vector<std::vector<std::string>> map_types;
-    std::ifstream file_reader;
-    file_reader.open(getAssetPath( "stage_one.txt"));
-    if (!file_reader) {
-        parsed_file = "didn't read";
-    }
-    std::string line_to_read;
-    while (std::getline(file_reader, line_to_read)) {
-        std::vector<std::string> row;
-        for (size_t index = 0; index < line_to_read.size() - 1; index += 3) {
-            std::string current_type;
-            current_type = line_to_read.substr(index, 3);
-            row.push_back(current_type);
-        }
-        map_types.push_back(row);
-        //file_reader.close();
-    }
-    std::vector<std::string> ending;
-    ending.emplace_back("end");
-    map_types.push_back(ending);
-
-
-    for (std::vector<std::string> row : map_types) {
-        for (std::string current : row) {
-            parsed_file += current;
-        }
-    }
-
-     */
-
 
     const cinder::vec2 center = getWindowCenter();
     const size_t font_height = 20;
@@ -311,90 +64,108 @@ void MyApp::draw() {
     cinder::gl::draw(texture, locp);
 
 
-    std::vector<std::vector<mylibrary::Tile>> tiles = scene_one.GetTileMap();
+    std::vector<std::vector<mylibrary::Tile>> tiles = current_scene.GetTileMap();
 
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
+    for (size_t current_y_tile = 1; current_y_tile <= current_scene.GetMaxYTiles(); current_y_tile++) {
+        for (size_t current_x_tile = 1; current_x_tile <= current_scene.GetMaxXTiles(); current_x_tile++) {
             mylibrary::Tile current_tile = tiles[current_y_tile - 1][current_x_tile - 1];
-            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
-            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
-            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
-            size_t end_y = scene_one.GetYEndPixel(current_y_tile);
+            size_t start_x = current_scene.GetXStartPixel(current_x_tile);
+            size_t end_x = current_scene.GetXEndPixel(current_x_tile);
+            size_t start_y = current_scene.GetYStartPixel(current_y_tile);
+            size_t end_y = current_scene.GetYEndPixel(current_y_tile);
             ci::Rectf drawRect(start_x, start_y, end_x, end_y);
             ci::gl::draw(current_tile.GetStillMapImage(), drawRect);
             if (current_tile.IsDynamic()) {
                 current_tile.GetDynamicImage()->draw(start_x, start_y, end_x, end_y);
             }
-            //
         }
     }
+    //teemo_default->draw(0,0,64,64);
 
-    /*
-    ci::Rectf drawRect(0, 0, 64, 64);
-    ci::gl::draw(tiles[0][2].GetStillMapImage(), drawRect);
-    tiles[0][2].GetDynamicImage()->draw(0,0,64,64);
-    */
-
-
-
-    /*
-    std::vector<std::vector<std::string>> map_types;
-    std::ifstream file_reader("stage_one.txt");
-    if (file_reader.is_open()) {
-        std::cout << "file open";
-        std::string line_to_read;
-        bool is_map_section = true;
-        while (std::getline(file_reader, line_to_read)) {
-            if (is_map_section) {
-                std::vector <std::string> row;
-                std::string current_type;
-                if (line_to_read.empty()) {
-                    is_map_section = false;
-                }
-                for (size_t index = 0; index < line_to_read.size(); index += 3) {
-                    current_type = line_to_read.substr(index, 3);
-                    row.push_back(current_type);
-                }
-                map_types.push_back(row);
-            }
-        }
-    }
-
-    */
-
-
-    //scene_one.draw();
-
-
-    /*
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
-            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
-            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
-            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
-            size_t end_y = scene_one.GetYEndPixel(current_y_tile);
-            ci::Rectf drawRect(start_x, start_y, end_x, end_y);
-            ci::gl::draw(mBackground_, drawRect);
-            teemo_default->draw(start_x, start_y, end_x, end_y);
-        }
-    }
-     */
-
-    /*
-
-    for (size_t current_y_tile = 1; current_y_tile <= scene_one.GetMaxYTiles(); current_y_tile++) {
-        for (size_t current_x_tile = 1; current_x_tile <= scene_one.GetMaxXTiles(); current_x_tile++) {
-            size_t start_x = scene_one.GetXStartPixel(current_x_tile);
-            size_t end_x = scene_one.GetXEndPixel(current_x_tile);
-            size_t start_y = scene_one.GetYStartPixel(current_y_tile);
-            size_t end_y =scene_one.GetYEndPixel(current_y_tile);
-            ci::Rectf drawRect(start_x, start_y, end_x, end_y);
-            ci::gl::draw(scene_one.GetTileMap()[current_y_tile - 1][ current_x_tile - 1].GetStillMapImage(), drawRect);
-        }
-    }
-     */
+    beemo.GetImage()->draw(beemo.GetXStartPixel(),beemo.GetYStartPixel(), beemo.GetXEndPixel(), beemo.GetYEndPixel());
 }
 
-void MyApp::keyDown(KeyEvent event) { }
+bool MyApp::CanBeemoMove(const string& direction) {
+    if (!IsWithinSceneBounds(direction)) {
+        return false;
+    }
+    mylibrary::Tile potential_tile;
+    if (direction == "up") {
+        size_t index_above = beemo.GetYTile() - 1;
+        potential_tile = current_scene.GetTile(beemo.GetXTile(), index_above);
+    } else if (direction == "down") {
+        size_t index_below = beemo.GetYTile() + 1;
+        potential_tile = current_scene.GetTile(beemo.GetXTile(), index_below);
+    } else if (direction == "left") {
+        size_t index_left = beemo.GetXTile() - 1;
+        potential_tile = current_scene.GetTile(index_left, beemo.GetYTile());
+    } else if (direction == "right") {
+        size_t index_right = beemo.GetXTile() + 1;
+        potential_tile = current_scene.GetTile(index_right, beemo.GetYTile());
+    }
+    return !potential_tile.IsSolid();
+}
+
+bool MyApp::IsWithinSceneBounds(const string& direction) {
+    if (direction == "up") {
+        if (beemo.GetYTile() != 1) {
+            return true;
+        }
+    } else if (direction == "down") {
+        if (beemo.GetYTile() != current_scene.GetMaxYTiles()) {
+            return true;
+        }
+    } else if (direction == "left") {
+        if (beemo.GetXTile() != 1) {
+            return true;
+        }
+    } else if (direction == "right") {
+        if (beemo.GetXTile() != current_scene.GetMaxXTiles()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void MyApp::keyDown(KeyEvent event) {
+    switch (event.getCode()) {
+        case KeyEvent::KEY_UP:
+        case KeyEvent::KEY_w: {
+            string direction = "up";
+            beemo.SetImage(direction);
+            if (CanBeemoMove(direction)) {
+                beemo.SetYTile(beemo.GetYTile() - 1);
+            }
+            break;
+        }
+        case KeyEvent::KEY_DOWN:
+        case KeyEvent::KEY_s: {
+            string direction = "down";
+            beemo.SetImage(direction);
+            if (CanBeemoMove(direction)) {
+                beemo.SetYTile(beemo.GetYTile() + 1);
+            }
+            break;
+        }
+        case KeyEvent::KEY_LEFT:
+        case KeyEvent::KEY_a: {
+            string direction = "left";
+            beemo.SetImage(direction);
+            if (CanBeemoMove(direction)) {
+                beemo.SetXTile(beemo.GetXTile() - 1);
+            }
+            break;
+        }
+        case KeyEvent::KEY_RIGHT:
+        case KeyEvent::KEY_d: {
+            string direction = "right";
+            beemo.SetImage(direction);
+            if (CanBeemoMove(direction)) {
+                beemo.SetXTile(beemo.GetXTile() + 1);
+            }
+            break;
+        }
+    }
+}
 
 }  // namespace myapp

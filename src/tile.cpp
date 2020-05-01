@@ -47,13 +47,12 @@ Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
             is_dynamic = false;
             // MAKE SURE THIS ISN'T DRAWN
             dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
-            is_solid = false;
         } else if (dynamic_type_input == "BEE") {
             is_undiscovered = false;
             is_undefeated = false;
             is_dynamic = true;
             //should be bee gif
-            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
+            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("bee.gif"));
             is_solid = true;
         } else {
             is_dynamic = true;
@@ -65,7 +64,7 @@ Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
                 is_solid = true;
             } else if (dynamic_type_input[2] == '2') {
                 //should be minion gif
-                dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
+                dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion default.gif"));
                 is_undiscovered = false;
                 is_undefeated = true;
                 is_solid = true;

@@ -8,6 +8,7 @@
 #include <cinder/gl/gl.h>
 #include <mylibrary/playing_field.h>
 #include "cinder/app/RendererGl.h"
+#include <mylibrary/character.h>
 
 
 namespace myapp {
@@ -20,9 +21,12 @@ class MyApp : public cinder::app::App {
   void draw() override;
   void keyDown(cinder::app::KeyEvent) override;
 private:
-
-    cinder::gl::Texture2dRef mBackground_;
+    mylibrary::PlayingField current_scene;
     mylibrary::PlayingField scene_one;
+    mylibrary::PlayingField scene_two;
+    mylibrary::Character beemo;
+    bool CanBeemoMove(const std::string& direction);
+    bool IsWithinSceneBounds(const std::string& direction);
 };
 
 }  // namespace myapp

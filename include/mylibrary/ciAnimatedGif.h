@@ -16,7 +16,6 @@ namespace cinder {
 
         static ciAnimatedGifRef create(ci::DataSourceRef data){ return std::make_shared<ciAnimatedGif>(data); }
         static ciAnimatedGifRef create( const cinder::fs::path &path){ return ciAnimatedGif::create( (cinder::DataSourceRef)cinder::DataSourcePath::create( path )); }
-
         void update();
         void draw();
         //method added for this specific project:
