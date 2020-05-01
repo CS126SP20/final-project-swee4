@@ -41,33 +41,31 @@ Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
 
     void Tile::setDynamicType(const string& dynamic_type_input) {
         dynamic_type = dynamic_type_input;
+        is_undiscovered = false;
+        is_undefeated = false;
+        is_dynamic = false;
+        is_teleport = false;
         if (dynamic_type_input == " . ") {
-            is_undiscovered = false;
-            is_undefeated = false;
-            is_dynamic = false;
-            // MAKE SURE THIS ISN'T DRAWN
-            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
+            dynamic_image = nullptr;
+        } else if (dynamic_type_input == "TEL") {
+            is_teleport = true;
+            dynamic_image = nullptr;
         } else if (dynamic_type_input == "BEE") {
-            is_undiscovered = false;
-            is_undefeated = false;
             is_dynamic = true;
             //should be bee gif
             dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("bee.gif"));
             is_solid = true;
         } else {
             is_dynamic = true;
+            is_solid = true;
             if (dynamic_type_input[2] == '1') {
                 //should be twinkle gif
                 dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
                 is_undiscovered = true;
-                is_undefeated = false;
-                is_solid = true;
             } else if (dynamic_type_input[2] == '2') {
                 //should be minion gif
                 dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion default.gif"));
-                is_undiscovered = false;
                 is_undefeated = true;
-                is_solid = true;
             }
         }
     }
@@ -89,6 +87,10 @@ bool Tile::IsSolid() {
 bool Tile::IsDynamic() {
     return is_dynamic;
 }
+
+bool Tile::IsTeleport() {
+        return is_teleport;
+    }
 
     bool Tile::IsUndiscovered(){
     return is_undiscovered;

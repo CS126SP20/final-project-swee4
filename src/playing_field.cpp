@@ -119,4 +119,24 @@ void PlayingField::draw() {
         return tiles[y_index - 1][x_index - 1];
     }
 
+    bool PlayingField::operator==(const PlayingField& rhs) {
+        PlayingField other = rhs;
+        vector<vector<Tile>> other_tile_map = other.GetTileMap();
+        if (tiles.size() != other_tile_map.size()) {
+            return false;
+        }
+        for (size_t row = 0; row < tiles.size(); row++) {
+            if (tiles[row].size() != other_tile_map[row].size()) {
+                return false;
+            }
+            for (size_t col = 0; col < tiles[row].size(); col++) {
+                if (tiles[row][col].GetMapType() != other_tile_map[row][col].GetMapType()) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+
 }  // namespace mylibrary

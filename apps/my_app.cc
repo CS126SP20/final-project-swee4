@@ -103,7 +103,7 @@ bool MyApp::CanBeemoMove(const string& direction) {
         size_t index_right = beemo.GetXTile() + 1;
         potential_tile = current_scene.GetTile(index_right, beemo.GetYTile());
     }
-    return !potential_tile.IsSolid();
+    return (!potential_tile.IsSolid());
 }
 
 bool MyApp::IsWithinSceneBounds(const string& direction) {
@@ -151,7 +151,13 @@ void MyApp::keyDown(KeyEvent event) {
         case KeyEvent::KEY_a: {
             string direction = "left";
             beemo.SetImage(direction);
-            if (CanBeemoMove(direction)) {
+            if (current_scene == scene_two &&
+                current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
+                //TODO: check if game state can be preserved between scenes
+                current_scene = scene_one;
+                beemo.SetXTile(scene_one.GetMaxXTiles());
+                break;
+            } else if (CanBeemoMove(direction)) {
                 beemo.SetXTile(beemo.GetXTile() - 1);
             }
             break;
@@ -160,7 +166,13 @@ void MyApp::keyDown(KeyEvent event) {
         case KeyEvent::KEY_d: {
             string direction = "right";
             beemo.SetImage(direction);
-            if (CanBeemoMove(direction)) {
+            if (current_scene == scene_one &&
+                current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
+                    //TODO: check if game state can be preserved between scenes
+                current_scene = scene_two;
+                beemo.SetXTile(1);
+                break;
+            } else if (CanBeemoMove(direction)) {
                 beemo.SetXTile(beemo.GetXTile() + 1);
             }
             break;

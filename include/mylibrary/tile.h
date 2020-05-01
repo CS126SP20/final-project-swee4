@@ -20,6 +20,7 @@ namespace mylibrary {
         bool IsDynamic();
         bool IsUndiscovered();
         bool IsUndefeated();
+        bool IsTeleport();
         string GetMapType();
         string GetDynamicType();
 
@@ -31,6 +32,7 @@ namespace mylibrary {
         bool is_dynamic;
         bool is_undiscovered;
         bool is_undefeated;
+        bool is_teleport;
         cinder::ciAnimatedGifRef dynamic_image;
     };
 }  // namespace mylibrary

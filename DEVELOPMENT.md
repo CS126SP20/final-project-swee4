@@ -37,6 +37,7 @@
     - [x] Beemo can move around and will turn accordingly based on direction.
     - [x] Beemo movement is contained within the bounds of the playing field.
     - [x] Beemo will not walk into solid objects.
+    - [x] Beemo can walk between scenes.
     - [ ] Implement minion attack response graphics.
     - [ ] Save dynamic states based on the item that is hidden that will be revealed
     upon interaction. 
