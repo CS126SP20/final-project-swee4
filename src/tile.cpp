@@ -2,73 +2,89 @@
 
 #include <mylibrary/tile.h>
 
-
 namespace mylibrary {
 
-    Tile::Tile() {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("grass.png")));
-        dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo default.gif"));
-    }
+Tile::Tile() {
+    still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("blank.png")));
+    dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo right.gif"));
+    item = Item();
+    is_solid = false;
+    is_dynamic = false;
+    is_undiscovered = false;
+    is_undefeated = false;
+    is_teleport = false;
+    description = "";
+    interaction_instructions = "";
+}
 
 Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
     setMapType(map_type_input);
     setDynamicType(dynamic_type_input);
+    item = Item(dynamic_type_input);
 }
 
+void Tile::setMapType(const string& map_type_input) {
+    map_type = map_type_input;
+    description = "";
+    interaction_instructions = "";
+    if (map_type == " . ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("grass.png")));
+        is_solid = false;
+    } else if (map_type == " L ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("lane.png")));
+        is_solid = false;
+    } else if (map_type == " H ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("horizontal wall.png")));
+        is_solid = true;
+    } else if (map_type == " V ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("vertical wall.png")));
+        is_solid = true;
+    } else if (map_type == " R ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("river.png")));
+        is_solid = true;
+    } else if (map_type == "   ") {
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("blank.png")));
+        is_solid = false;
+    }
+}
 
-    void Tile::setMapType(const string& map_type_input) {
-        map_type = map_type_input;
-        if (map_type == " . ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("grass.png")));
-            is_solid = false;
-        } else if (map_type == " L ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("lane.png")));
-            is_solid = false;
-        } else if (map_type == " H ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("horizontal wall.png")));
-            is_solid = true;
-        } else if (map_type == " V ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("vertical wall.png")));
-            is_solid = true;
-        } else if (map_type == " R ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("river.png")));
-            is_solid = true;
-        } else if (map_type == "   ") {
-            still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("blank.png")));
-            is_solid = false;
+void Tile::setDynamicType(const string& dynamic_type_input) {
+    dynamic_type = dynamic_type_input;
+    is_undiscovered = false;
+    is_undefeated = false;
+    is_dynamic = false;
+    is_teleport = false;
+    if (dynamic_type_input == " . ") {
+        dynamic_image = nullptr;
+    } else if (dynamic_type_input == "TEL") {
+        is_teleport = true;
+        dynamic_image = nullptr;
+    } else if (dynamic_type_input == "BEE") {
+        is_dynamic = true;
+        //should be bee gif
+        item = Item(dynamic_type);
+        dynamic_image = item.GetImage();
+        is_solid = true;
+        description = "A BEE! This will help you fight enemies. But use it wisely! You cannot attack without them. ";
+        interaction_instructions = "\nPick it up by pressing [X] or [SPACE].";
+    } else {
+        is_dynamic = true;
+        is_solid = true;
+        item = Item(dynamic_type);
+        if (dynamic_type_input[2] == '1') {
+            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
+            is_undiscovered = true;
+            description = "What's this? It seems like something is hidden here. ";
+            interaction_instructions = "\nReveal it by pressing [X] or [SPACE].";
+        } else if (dynamic_type_input[2] == '2') {
+            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion attack.gif"));
+            is_undefeated = true;
+            description = "A MINION! You will need to use your bees to fight them. "
+                          "\nBut if you win, you will be lavishly rewarded! ";
+            interaction_instructions = "\nFight by pressing [X] or [SPACE].";
         }
     }
-
-    void Tile::setDynamicType(const string& dynamic_type_input) {
-        dynamic_type = dynamic_type_input;
-        is_undiscovered = false;
-        is_undefeated = false;
-        is_dynamic = false;
-        is_teleport = false;
-        if (dynamic_type_input == " . ") {
-            dynamic_image = nullptr;
-        } else if (dynamic_type_input == "TEL") {
-            is_teleport = true;
-            dynamic_image = nullptr;
-        } else if (dynamic_type_input == "BEE") {
-            is_dynamic = true;
-            //should be bee gif
-            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("bee.gif"));
-            is_solid = true;
-        } else {
-            is_dynamic = true;
-            is_solid = true;
-            if (dynamic_type_input[2] == '1') {
-                //should be twinkle gif
-                dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
-                is_undiscovered = true;
-            } else if (dynamic_type_input[2] == '2') {
-                //should be minion gif
-                dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion default.gif"));
-                is_undefeated = true;
-            }
-        }
-    }
+}
 
 
 cinder::gl::Texture2dRef Tile::GetStillMapImage() {
@@ -77,7 +93,6 @@ cinder::gl::Texture2dRef Tile::GetStillMapImage() {
 
 cinder::ciAnimatedGifRef Tile::GetDynamicImage() {
     return dynamic_image;
-    //TODO: setters to update dynamic image after interaction
 }
 
 bool Tile::IsSolid() {
@@ -89,22 +104,60 @@ bool Tile::IsDynamic() {
 }
 
 bool Tile::IsTeleport() {
-        return is_teleport;
-    }
+    return is_teleport;
+}
 
-    bool Tile::IsUndiscovered(){
+bool Tile::IsUndiscovered(){
     return is_undiscovered;
 }
-    bool Tile::IsUndefeated(){
+
+bool Tile::IsUndefeated(){
     return is_undefeated;
 
 }
-    string Tile::GetMapType(){
+
+string Tile::GetMapType(){
     return map_type;
-
 }
-    string Tile::GetDynamicType(){
+
+string Tile::GetDynamicType(){
     return dynamic_type;
-
 }
+
+Item Tile::GetItem() {
+    return item;
+}
+
+void Tile::Reveal() {
+    dynamic_image = item.GetImage();
+    is_undefeated = false;
+    is_undiscovered = false;
+}
+
+void Tile::Remove() {
+    is_dynamic = false;
+    is_solid = false;
+    dynamic_type = " . ";
+    description = "";
+    interaction_instructions = "";
+}
+
+string Tile::GetDescription() {
+    if (is_undefeated || is_undiscovered || dynamic_type == "BEE") {
+        return description;
+    } else if (is_dynamic) {
+        return item.GetDescription();
+    }
+    return description;
+}
+
+string Tile::GetInteractionInstructions() {
+    if (is_undefeated || is_undiscovered || dynamic_type == "BEE") {
+        return interaction_instructions;
+    } else if (is_dynamic) {
+        return item.GetInteractionInstructions();
+    }
+    return interaction_instructions;
+}
+
 }  // namespace mylibrary

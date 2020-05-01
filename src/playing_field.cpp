@@ -1,18 +1,19 @@
-// Copyright (c) 2020 [Your Name]. All rights reserved.
+// Copyright (c) 2020 [Sue Wee]. All rights reserved.
 
-#include <mylibrary/playing_field.h>
 #include <iostream>
+#include <mylibrary/playing_field.h>
 
 namespace mylibrary {
-    using std::ifstream;
-    using ci::app::getAssetPath;
 
-    PlayingField::PlayingField() {
-        SetupTiles();
-    }
+using ci::app::getAssetPath;
+using std::ifstream;
+
+PlayingField::PlayingField() {
+    SetupTiles();
+}
 
 PlayingField::PlayingField(const string& file_name) {
-        SetupTiles();
+    SetupTiles();
 
     vector<string> map_types;
     vector<string> dynamic_types;
@@ -51,92 +52,93 @@ PlayingField::PlayingField(const string& file_name) {
     }
 }
 
-//TODO: move to bottom of page bc it's private
-void PlayingField::SetupTiles() {
-        tile_size = 64;
-        max_x_tiles = 12;
-        max_y_tiles = 8;
-        max_x_pixels = max_x_tiles * tile_size;
-        max_y_pixels = max_y_tiles * tile_size;
-
-        for (size_t row = 0; row < GetMaxYTiles(); row++) {
-            vector<Tile> current_row;
-            for (size_t col = 0; col < GetMaxXTiles(); col++) {
-                Tile tile("   ", " . ");
-                current_row.push_back(tile);
-            }
-            tiles.push_back(current_row);
-        }
-    }
-
 void PlayingField::draw() {
-    for (size_t row = 0; row < GetMaxYTiles(); row++) {
-        for (size_t col = 0; col < GetMaxXTiles(); col++) {
-            size_t start_x = GetXStartPixel(col);
-            size_t end_x = GetXEndPixel(col);
-            size_t start_y = GetYStartPixel(row);
-            size_t end_y = GetYEndPixel(row);
+    for (size_t current_y_tile = 1; current_y_tile <= GetMaxYTiles(); current_y_tile++) {
+        for (size_t current_x_tile = 1; current_x_tile <= GetMaxXTiles(); current_x_tile++) {
+            mylibrary::Tile current_tile = tiles[current_y_tile - 1][current_x_tile - 1];
+            size_t start_x = GetXStartPixel(current_x_tile);
+            size_t end_x = GetXEndPixel(current_x_tile);
+            size_t start_y = GetYStartPixel(current_y_tile);
+            size_t end_y = GetYEndPixel(current_y_tile);
             ci::Rectf drawRect(start_x, start_y, end_x, end_y);
-            ci::gl::draw(tiles[row][col].GetStillMapImage(), drawRect);
-            //not all tiles are dynamic
-            //tiles[row][col].GetDynamicImage()->draw(start_x, start_y, end_x, end_y);
+            ci::gl::draw(current_tile.GetStillMapImage(), drawRect);
+            if (current_tile.IsDynamic()) {
+                current_tile.GetDynamicImage()->draw(start_x, start_y, end_x, end_y);
+            }
         }
     }
-    }
+}
 
-    vector<vector<Tile>> PlayingField::GetTileMap() {
-        return tiles;
-    }
+vector<vector<Tile>> PlayingField::GetTileMap() {
+    return tiles;
+}
 
-    size_t PlayingField::GetMaxXTiles() {
-        return max_x_tiles;
-    }
+size_t PlayingField::GetMaxXTiles() {
+    return max_x_tiles;
+}
 
-    size_t PlayingField::GetMaxYTiles(){
-        return max_y_tiles;
-    }
-    size_t PlayingField::GetMaxXPixels(){
-        return max_x_pixels;
-    }
-    size_t PlayingField::GetMaxYPixels(){
-        return max_y_pixels;
-    }
-    size_t PlayingField::GetXStartPixel(size_t current_x_tile){
-        return (current_x_tile - 1) * tile_size;
-    }
-    size_t PlayingField::GetYStartPixel(size_t current_y_tile){
-        return (current_y_tile - 1) * tile_size;
-    }
+size_t PlayingField::GetMaxYTiles(){
+    return max_y_tiles;
+}
+size_t PlayingField::GetXStartPixel(size_t current_x_tile){
+    return (current_x_tile - 1) * tile_size;
+}
+size_t PlayingField::GetYStartPixel(size_t current_y_tile){
+    return (current_y_tile - 1) * tile_size;
+}
 
-    size_t PlayingField::GetXEndPixel(size_t current_x_tile) {
-        return current_x_tile * tile_size;
-    }
-    size_t PlayingField::GetYEndPixel(size_t current_y_tile) {
-        return current_y_tile * tile_size;
-    }
+size_t PlayingField::GetXEndPixel(size_t current_x_tile) {
+    return current_x_tile * tile_size;
+}
+size_t PlayingField::GetYEndPixel(size_t current_y_tile) {
+    return current_y_tile * tile_size;
+}
 
-    Tile PlayingField::GetTile(size_t x_index, size_t y_index) {
-        return tiles[y_index - 1][x_index - 1];
-    }
+Tile PlayingField::GetTile(size_t x_index, size_t y_index) {
+    return tiles[y_index - 1][x_index - 1];
+}
 
-    bool PlayingField::operator==(const PlayingField& rhs) {
-        PlayingField other = rhs;
-        vector<vector<Tile>> other_tile_map = other.GetTileMap();
-        if (tiles.size() != other_tile_map.size()) {
+bool PlayingField::operator==(const PlayingField& rhs) {
+    PlayingField other = rhs;
+    vector<vector<Tile>> other_tile_map = other.GetTileMap();
+    if (tiles.size() != other_tile_map.size()) {
+        return false;
+    }
+    for (size_t row = 0; row < tiles.size(); row++) {
+        if (tiles[row].size() != other_tile_map[row].size()) {
             return false;
         }
-        for (size_t row = 0; row < tiles.size(); row++) {
-            if (tiles[row].size() != other_tile_map[row].size()) {
+        for (size_t col = 0; col < tiles[row].size(); col++) {
+            if (tiles[row][col].GetMapType() != other_tile_map[row][col].GetMapType()) {
                 return false;
             }
-            for (size_t col = 0; col < tiles[row].size(); col++) {
-                if (tiles[row][col].GetMapType() != other_tile_map[row][col].GetMapType()) {
-                    return false;
-                }
-            }
-
         }
-        return true;
+
     }
+    return true;
+}
+
+void PlayingField::Reveal(size_t x_index, size_t y_index) {
+    tiles[y_index - 1][x_index - 1].Reveal();
+}
+
+void PlayingField::Remove(size_t x_index, size_t y_index) {
+    tiles[y_index - 1][x_index - 1].Remove();
+}
+
+void PlayingField::SetupTiles() {
+    tile_size = 64;
+    max_x_tiles = 12;
+    max_y_tiles = 8;
+
+    for (size_t row = 0; row < GetMaxYTiles(); row++) {
+        vector<Tile> current_row;
+        for (size_t col = 0; col < GetMaxXTiles(); col++) {
+            Tile tile("   ", " . ");
+            current_row.push_back(tile);
+        }
+        tiles.push_back(current_row);
+    }
+}
 
 }  // namespace mylibrary

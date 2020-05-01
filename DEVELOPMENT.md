@@ -38,9 +38,17 @@
     - [x] Beemo movement is contained within the bounds of the playing field.
     - [x] Beemo will not walk into solid objects.
     - [x] Beemo can walk between scenes.
-    - [ ] Implement minion attack response graphics.
-    - [ ] Save dynamic states based on the item that is hidden that will be revealed
+    
+- **5/1/30** Create the skeleton of the game interaction logic.
+    - ~~Implement minion attack response graphics.~~
+    - [x] Replace minion default graphics with attack graphics.
+    - [x] Save dynamic states based on the item that is hidden that will be revealed
     upon interaction. 
-
+    - [x] Format and draw description, inventory, and stats slots. 
+    - [x] Description, inventory, and stats update according to item interaction.
+    - [x] Create a Character class to track animation, stats, inventory and more.
+    - [ ] Create an final boss and end state for the game. 
+    
 Ongoing: 
--[ ] Implement Initializer Lists in Playing Field Constructor
+- [ ] Implement Initializer Lists in Playing Field Constructor.
+- [ ] Remove magic numbers.
