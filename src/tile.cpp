@@ -59,14 +59,21 @@ void Tile::setDynamicType(const string& dynamic_type_input) {
     } else if (dynamic_type_input == "TEL") {
         is_teleport = true;
         dynamic_image = nullptr;
-    } else if (dynamic_type_input == "BEE") {
+    } else if (dynamic_type_input == "END") {
+        //TODO: make this a poro
         is_dynamic = true;
-        //should be bee gif
-        item = Item(dynamic_type);
-        dynamic_image = item.GetImage();
         is_solid = true;
-        description = "A BEE! This will help you fight enemies. But use it wisely! You cannot attack without them. ";
-        interaction_instructions = "\nPick it up by pressing [X] or [SPACE].";
+        dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed 2.gif"));
+        description = "Your friend, the PORO!";
+        interaction_instructions = "\nHug them by pressing [SPACE] or [E].";
+    } else if (dynamic_type_input == "BEE") {
+            is_dynamic = true;
+            //should be bee gif
+            item = Item(dynamic_type);
+            dynamic_image = item.GetImage();
+            is_solid = true;
+            description = "A BEE! This will help you fight enemies. But use it wisely! You cannot attack without them. ";
+            interaction_instructions = "\nPick it up by pressing [SPACE] or [E].";
     } else {
         is_dynamic = true;
         is_solid = true;
@@ -75,13 +82,13 @@ void Tile::setDynamicType(const string& dynamic_type_input) {
             dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
             is_undiscovered = true;
             description = "What's this? It seems like something is hidden here. ";
-            interaction_instructions = "\nReveal it by pressing [X] or [SPACE].";
+            interaction_instructions = "\nReveal it by pressing [SPACE] or [E].";
         } else if (dynamic_type_input[2] == '2') {
             dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion attack.gif"));
             is_undefeated = true;
-            description = "A MINION! You will need to use your bees to fight them. "
+            description = "A MINION! You will need to use your BEES to fight them. "
                           "\nBut if you win, you will be lavishly rewarded! ";
-            interaction_instructions = "\nFight by pressing [X] or [SPACE].";
+            interaction_instructions = "\nFight by pressing [SPACE] or [Q].";
         }
     }
 }
@@ -143,7 +150,7 @@ void Tile::Remove() {
 }
 
 string Tile::GetDescription() {
-    if (is_undefeated || is_undiscovered || dynamic_type == "BEE") {
+    if (is_undefeated || is_undiscovered || dynamic_type == "BEE" || dynamic_type == "END") {
         return description;
     } else if (is_dynamic) {
         return item.GetDescription();
@@ -152,7 +159,7 @@ string Tile::GetDescription() {
 }
 
 string Tile::GetInteractionInstructions() {
-    if (is_undefeated || is_undiscovered || dynamic_type == "BEE") {
+    if (is_undefeated || is_undiscovered || dynamic_type == "BEE" || dynamic_type == "END") {
         return interaction_instructions;
     } else if (is_dynamic) {
         return item.GetInteractionInstructions();

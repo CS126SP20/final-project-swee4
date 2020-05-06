@@ -46,6 +46,9 @@ PlayingField::PlayingField(const string& file_name) {
         size_t col = 0;
         for (size_t index = 0; index < dynamic_types[0].size(); index += 3) {
             string current_dynamic_type = dynamic_types[row].substr(index,3);
+            if (current_dynamic_type == "END") {
+                boss_tiles.push_back(tiles[row][col]);
+            }
             tiles[row][col].setDynamicType(current_dynamic_type);
             col++;
         }

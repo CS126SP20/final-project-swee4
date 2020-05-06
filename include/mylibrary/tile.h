@@ -42,7 +42,6 @@ private:
     Item item;
     string description;
     string interaction_instructions;
-
 };
 }  // namespace mylibrary
 

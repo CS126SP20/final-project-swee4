@@ -12,6 +12,13 @@
 
 namespace myapp {
 
+enum class GameState {
+    kIntroduction,
+    kPlaying,
+    kGameLost,
+    kGameWon
+};
+
 class MyApp : public cinder::app::App {
 public:
     MyApp();
@@ -32,6 +39,10 @@ private:
     void DrawDescription();
     void DrawInventory();
     void DrawStats();
+    GameState game_state;
+    void DrawIntroduction();
+    void DrawWinScreen();
+    void DrawLoseScreen();
 };
 
 }  // namespace myapp

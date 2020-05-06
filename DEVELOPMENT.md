@@ -30,16 +30,16 @@
     Tiles will automatically start out as a blank tile (white background and no 
     interactive dynamic type).
     
-- **4/29/30** Work on having the correct gifs for the dynamic images.
+- **4/29/20** Work on having the correct gifs for the dynamic images.
     - [x] Implement minion default graphics.
     
-- **4/30/30** Further implement user interaction and appropriate responses.
+- **4/30/20** Further implement user interaction and appropriate responses.
     - [x] Beemo can move around and will turn accordingly based on direction.
     - [x] Beemo movement is contained within the bounds of the playing field.
     - [x] Beemo will not walk into solid objects.
     - [x] Beemo can walk between scenes.
     
-- **5/1/30** Create the skeleton of the game interaction logic.
+- **5/1/20** Create the skeleton of the game interaction logic.
     - ~~Implement minion attack response graphics.~~
     - [x] Replace minion default graphics with attack graphics.
     - [x] Save dynamic states based on the item that is hidden that will be revealed
@@ -47,8 +47,15 @@
     - [x] Format and draw description, inventory, and stats slots. 
     - [x] Description, inventory, and stats update according to item interaction.
     - [x] Create a Character class to track animation, stats, inventory and more.
-    - [ ] Create an final boss and end state for the game. 
+    
+- **5/5/20**
+    - [x] Implement dynamic type "END" functionality to link the win state of the game.
+    - [x] Create a win state for the game. 
+    - [ ] Create a loss state for the game.
+    - [ ] Implement the final boss logic.
     
 Ongoing: 
 - [ ] Implement Initializer Lists in Playing Field Constructor.
 - [ ] Remove magic numbers.
+- [ ] Remove hard coded strings where possible.
+- [ ] Direction class to have the enum direction. 

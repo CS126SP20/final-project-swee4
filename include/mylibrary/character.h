@@ -25,12 +25,15 @@ public:
     cinder::ciAnimatedGifRef GetImage();
     void SetImage(string orientation);
     string GetOrientation();
-    size_t GetStat(string type_acronym);
     void AttackMode();
     void Grab(mylibrary::Item item_to_grab);
     void UseAmmo();
     vector<Item> GetInventory();
     bool IsInventoryFull();
+    size_t GetTotalAP();
+    size_t GetTotalHP();
+    size_t GetCurrentHP();
+    size_t GetCurrentAmmoCount();
     private:
     size_t current_x_tile;
     size_t current_y_tile;
@@ -38,7 +41,8 @@ public:
     cinder::ciAnimatedGifRef current_image;
     string orientation;
     size_t ap;
-    size_t hp;
+    size_t current_hp;
+    size_t total_hp;
     size_t ammo;
     vector<Item> inventory;
 };

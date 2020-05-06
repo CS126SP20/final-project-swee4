@@ -66,7 +66,7 @@ string Item::GetDescription() {
 }
 
 string Item::GetInteractionInstructions() {
-    return "\nAdd it to your inventory by pressing [X] or [SPACE].";
+    return "\nAdd it to your inventory by pressing [SPACE] or [E].";
 }
 
 }  // namespace mylibrary

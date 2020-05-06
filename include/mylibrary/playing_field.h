@@ -26,12 +26,15 @@ public:
     bool operator==(const PlayingField& rhs);
     void Reveal(size_t x_index, size_t y_index);
     void Remove(size_t x_index, size_t y_index);
+    vector<Tile> GetBossTiles();
+
 private:
     vector<vector<Tile>> tiles;
     size_t tile_size;
     size_t max_x_tiles;
     size_t max_y_tiles;
     void SetupTiles();
+    vector<Tile> boss_tiles;
 };
 }  // namespace mylibrary
 

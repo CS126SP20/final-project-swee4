@@ -26,7 +26,12 @@ const size_t kDescriptionTileWidth = 7;
 const size_t kInventoryTileWidth = 2;
 const size_t kStatsTileWidth = 3;
 
-MyApp::MyApp() { }
+    cinder::ciAnimatedGifRef sized_32;
+    cinder::ciAnimatedGifRef sized_64;
+
+MyApp::MyApp() {
+    game_state = {GameState::kIntroduction};
+}
 
 void MyApp::setup() {
     ci::app::setWindowSize(kPlayingFieldTileWidth * kTilePixelLength,
@@ -35,22 +40,88 @@ void MyApp::setup() {
     scene_two = mylibrary::PlayingField("stage_two.txt");
     current_scene = scene_one;
     beemo = mylibrary::Character(1,8,64,"beemo right.gif");
+    sized_32 = cinder::ciAnimatedGif::create( ci::app::loadAsset("32 scaled.gif"));
+    sized_64 = cinder::ciAnimatedGif::create( ci::app::loadAsset("64 scaled.gif"));
 }
 
 void MyApp::update() {
 }
 
 void MyApp::draw() {
-    cinder::gl::clear();
+    //sized_32->draw(384,0,512,128);
+    //sized_64->draw(384,128,512,256);
+    if (game_state == GameState::kIntroduction) {
+        DrawIntroduction();
+    } else if (game_state == GameState::kPlaying) {
+        cinder::gl::clear();
 
-    DrawDescription();
-    DrawInventory();
-    DrawStats();
-
-    current_scene.draw();
-    beemo.GetImage()->draw(beemo.GetXStartPixel(),beemo.GetYStartPixel(),
-            beemo.GetXEndPixel(), beemo.GetYEndPixel());
+        DrawDescription();
+        DrawInventory();
+        DrawStats();
+        current_scene.draw();
+        beemo.GetImage()->draw(beemo.GetXStartPixel(),beemo.GetYStartPixel(),
+                               beemo.GetXEndPixel(), beemo.GetYEndPixel());
+    } else if (game_state == GameState::kGameWon) {
+        DrawWinScreen();
+    }
 }
+
+void MyApp::DrawIntroduction() {
+    ci::gl::clear();
+    const size_t font_height = 30;
+    const cinder::ivec2 size = {kPlayingFieldTileWidth * kTilePixelLength, (kTextTileHeight + kPlayingFieldTileHeight) * kTilePixelLength};
+    const Color color = Color::white();
+
+    cinder::gl::color(color);
+    auto box = TextBox()
+            .alignment(TextBox::CENTER)
+            .font(cinder::Font("Arial", font_height))
+            .size(size)
+            .color(color)
+            .backgroundColor(ColorA(0, 0, 0, 0))
+            .text("Welcome to Beemo's Adventures!"
+                  "\n\n You are playing as BEEMO, the cute little League of Legends champion."
+                  "\n\n You are on a mission to save your good friend, a PORO! In order to defeat the game, you must "
+                  "beat the final obstacle, the NEXUS TURRET."
+                  "\n\n You can collect items that are hidden on the map for special buffs. Once you pick up an item, "
+                  "you cannot drop it. And remember, you only have a maximum of 6 item slots. Defeating MINIONS will "
+                  "reveal items with stronger buffs than those hidden elsewhere. However, choose wisely, because "
+                  "if you expend all your BEES on the MINIONS, you will not have enough to fight the NEXUS TURRET "
+                  "in the end."
+                  "\n\n Use [WASD] or the [ARROW KEYS] to move. Use [SPACE] or [Q] to attack or uncover objects, and "
+                  "[SPACE] or [E] to add objects to your inventory."
+                  "\n\n\nAre you ready to begin your adventures?"
+                  "\nPress [SPACE] or [E] to start.");
+
+
+    const auto box_size = box.getSize();
+    const cinder::vec2 locp = {0,0};
+    const auto surface = box.render();
+    const auto texture = cinder::gl::Texture::create(surface);
+    cinder::gl::draw(texture, locp);
+}
+
+    void MyApp::DrawWinScreen() {
+        ci::gl::clear();
+        const size_t font_height = 50;
+        const cinder::ivec2 size = {kPlayingFieldTileWidth * kTilePixelLength, (kTextTileHeight + kPlayingFieldTileHeight) * kTilePixelLength};
+        const Color color = Color::white();
+
+        cinder::gl::color(color);
+        auto box = TextBox()
+                .alignment(TextBox::CENTER)
+                .font(cinder::Font("Arial", font_height))
+                .size(size)
+                .color(color)
+                .backgroundColor(ColorA(0, 0, 0, 0))
+                .text("CONGRATULATIONS! \n You saved the PORO! <3");
+
+        const auto box_size = box.getSize();
+        const cinder::vec2 locp = {0,0};
+        const auto surface = box.render();
+        const auto texture = cinder::gl::Texture::create(surface);
+        cinder::gl::draw(texture, locp);
+    }
 
 void MyApp::DrawDescription() {
     const size_t font_height = 30;
@@ -58,7 +129,7 @@ void MyApp::DrawDescription() {
     const Color color = Color::white();
     string text_to_print;
     if (beemo.IsInventoryFull()) {
-        if (GetFrontTile().GetDynamicType() != "BEE" && !GetFrontTile().IsUndefeated() &&
+        if (GetFrontTile().GetDynamicType() != "BEE" && GetFrontTile().GetDynamicType() != "END" && !GetFrontTile().IsUndefeated() &&
             !GetFrontTile().IsUndiscovered() && GetFrontTile().IsDynamic()) {
             text_to_print = GetFrontTile().GetDescription() +
                     "\n\nYou have no more room in your inventory! You cannot pick up any more items.";
@@ -99,9 +170,10 @@ void MyApp::DrawDescription() {
                 .color(color)
                 .backgroundColor(ColorA(0, 0, 0, 0))
                 .text("\nSTATS:"
-                         "\nABILITY POWER (AP): " + std::to_string(beemo.GetStat("AP")) +
-                         "\nHEALTH (HP): " + std::to_string(beemo.GetStat("HP")) +
-                         "\nAMMO (BEES): " + std::to_string(beemo.GetStat("BE")));
+                         "\nABILITY POWER (AP): " + std::to_string(beemo.GetTotalAP()) +
+                         "\nHEALTH (HP): " + std::to_string(beemo.GetCurrentHP()) + "/" +
+                         std::to_string(beemo.GetTotalHP()) + "\nAMMO (BEES): " +
+                         std::to_string(beemo.GetCurrentAmmoCount()));
 
 
         const auto box_size = box.getSize();
@@ -246,70 +318,101 @@ size_t MyApp::GetFrontTileY() {
 }
 
 void MyApp::keyDown(KeyEvent event) {
-    switch (event.getCode()) {
-        case KeyEvent::KEY_UP:
-        case KeyEvent::KEY_w: {
-            string direction = "up";
-            beemo.SetImage(direction);
-            if (CanMove(direction)) {
-                beemo.SetYTile(beemo.GetYTile() - 1);
-            }
-            break;
+    if (game_state == GameState::kIntroduction) {
+        if (event.getCode() == KeyEvent::KEY_SPACE || event.getCode() == KeyEvent::KEY_e) {
+            game_state = GameState::kPlaying;
         }
-        case KeyEvent::KEY_DOWN:
-        case KeyEvent::KEY_s: {
-            string direction = "down";
-            beemo.SetImage(direction);
-            if (CanMove(direction)) {
-                beemo.SetYTile(beemo.GetYTile() + 1);
-            }
-            break;
-        }
-        case KeyEvent::KEY_LEFT:
-        case KeyEvent::KEY_a: {
-            string direction = "left";
-            beemo.SetImage(direction);
-            if (current_scene == scene_two &&
-                current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
-                scene_two = current_scene;
-                current_scene = scene_one;
-                beemo.SetXTile(scene_one.GetMaxXTiles());
-                break;
-            } else if (CanMove(direction)) {
-                beemo.SetXTile(beemo.GetXTile() - 1);
-            }
-            break;
-        }
-        case KeyEvent::KEY_RIGHT:
-        case KeyEvent::KEY_d: {
-            string direction = "right";
-            beemo.SetImage(direction);
-            if (current_scene == scene_one &&
-                current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
-                scene_one = current_scene;
-                current_scene = scene_two;
-                beemo.SetXTile(1);
-                break;
-            } else if (CanMove(direction)) {
-                beemo.SetXTile(beemo.GetXTile() + 1);
-            }
-            break;
-        }
-        case KeyEvent::KEY_SPACE:
-        case KeyEvent::KEY_x: {
-            scene_one.GetTile(1,2).Reveal();
-            if (GetFrontTile().IsUndiscovered() || (GetFrontTile().IsUndefeated() && beemo.GetStat("BE") > 0)) {
-                if (GetFrontTile().IsUndefeated()) {
-                    beemo.UseAmmo();
+    } else if (game_state == GameState::kPlaying) {
+        switch (event.getCode()) {
+            case KeyEvent::KEY_UP:
+            case KeyEvent::KEY_w: {
+                string direction = "up";
+                beemo.SetImage(direction);
+                if (CanMove(direction)) {
+                    beemo.SetYTile(beemo.GetYTile() - 1);
                 }
-                beemo.AttackMode();
-                current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
-            } else if (GetFrontTile().GetDynamicType() == "BEE") {
-                beemo.Grab(GetFrontTile().GetItem());
-                current_scene.Remove(GetFrontTileX(), GetFrontTileY());
-            } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
-                beemo.Grab(GetFrontTile().GetItem());
-                current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                break;
+            }
+            case KeyEvent::KEY_DOWN:
+            case KeyEvent::KEY_s: {
+                string direction = "down";
+                beemo.SetImage(direction);
+                if (CanMove(direction)) {
+                    beemo.SetYTile(beemo.GetYTile() + 1);
+                }
+                break;
+            }
+            case KeyEvent::KEY_LEFT:
+            case KeyEvent::KEY_a: {
+                string direction = "left";
+                beemo.SetImage(direction);
+                if (current_scene == scene_two &&
+                    current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
+                    scene_two = current_scene;
+                    current_scene = scene_one;
+                    beemo.SetXTile(scene_one.GetMaxXTiles());
+                    break;
+                } else if (CanMove(direction)) {
+                    beemo.SetXTile(beemo.GetXTile() - 1);
+                }
+                break;
+            }
+            case KeyEvent::KEY_RIGHT:
+            case KeyEvent::KEY_d: {
+                string direction = "right";
+                beemo.SetImage(direction);
+                if (current_scene == scene_one &&
+                    current_scene.GetTile(beemo.GetXTile(), beemo.GetYTile()).IsTeleport()) {
+                    scene_one = current_scene;
+                    current_scene = scene_two;
+                    beemo.SetXTile(1);
+                    break;
+                } else if (CanMove(direction)) {
+                    beemo.SetXTile(beemo.GetXTile() + 1);
+                }
+                break;
+            }
+            case KeyEvent::KEY_SPACE: {
+                if (GetFrontTile().GetDynamicType() == "END") {
+                    game_state = GameState::kGameWon;
+                } else if (GetFrontTile().IsUndiscovered()) {
+                    beemo.AttackMode();
+                    current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+                } else if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
+                    beemo.UseAmmo();
+                    beemo.AttackMode();
+                    current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+                } else if (GetFrontTile().GetDynamicType() == "BEE") {
+                    beemo.Grab(GetFrontTile().GetItem());
+                    current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
+                    beemo.Grab(GetFrontTile().GetItem());
+                    current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                }
+                break;
+            }
+            case KeyEvent::KEY_q: {
+                if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
+                    beemo.UseAmmo();
+                    beemo.AttackMode();
+                    current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+                }
+                break;
+            }
+            case KeyEvent::KEY_e: {
+                if (GetFrontTile().GetDynamicType() == "END") {
+                    game_state = GameState::kGameWon;
+                } else if (GetFrontTile().IsUndiscovered() && event.getCode()) {
+                    beemo.AttackMode();
+                    current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+                } else if (GetFrontTile().GetDynamicType() == "BEE") {
+                    beemo.Grab(GetFrontTile().GetItem());
+                    current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
+                    beemo.Grab(GetFrontTile().GetItem());
+                    current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                }
+                break;
             }
         }
     }

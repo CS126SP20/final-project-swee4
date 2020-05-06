@@ -11,7 +11,8 @@ Character::Character() {
     current_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo right.gif"));
     orientation = "right";
     ap = 20;
-    hp = 100;
+    total_hp = 100;
+    current_hp = total_hp;
     ammo = 0;
 }
 
@@ -22,7 +23,8 @@ Character::Character(size_t start_x_tile, size_t start_y_tile, size_t tile_size,
     current_image = cinder::ciAnimatedGif::create( ci::app::loadAsset(image_file_name));
     orientation = "right";
     ap = 20;
-    hp = 100;
+    total_hp = 100;
+    current_hp = total_hp;
     ammo = 0;
 }
 
@@ -71,15 +73,19 @@ string Character::GetOrientation() {
     return orientation;
 }
 
-size_t Character::GetStat(string type_acronym) {
-    if (type_acronym == "AP") {
-        return ap;
-    } else if (type_acronym == "HP") {
-        return hp;
-    } else if (type_acronym == "BE") {
-        return ammo;
-    }
-    return 0;
+size_t Character::GetTotalAP() {
+    return ap;
+}
+size_t Character::GetTotalHP() {
+    return total_hp;
+}
+
+size_t Character:: GetCurrentHP() {
+    return current_hp;
+}
+
+size_t Character:: GetCurrentAmmoCount() {
+    return ammo;
 }
 
 void Character::AttackMode() {
@@ -98,7 +104,8 @@ void Character::Grab(mylibrary::Item item_to_grab) {
     } else if (acronym == "AP") {
         ap += value;
     } else if (acronym == "HP") {
-        hp += value;
+        total_hp += value;
+        current_hp += value;
     }
 }
 
@@ -113,4 +120,5 @@ vector<Item> Character::GetInventory() {
 bool Character::IsInventoryFull() {
     return inventory.size() == 6;
 }
+
 }  // namespace mylibrary
