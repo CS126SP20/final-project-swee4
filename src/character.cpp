@@ -121,4 +121,12 @@ bool Character::IsInventoryFull() {
     return inventory.size() == 6;
 }
 
+void Character::TakeDamage(size_t damage_value) {
+    if (damage_value > current_hp) {
+        current_hp = 0;
+    } else {
+        current_hp -= damage_value;
+    }
+}
+
 }  // namespace mylibrary

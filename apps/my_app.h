@@ -15,7 +15,10 @@ namespace myapp {
 enum class GameState {
     kIntroduction,
     kPlaying,
-    kGameLost,
+    kDealDamage,
+    kTakeDamage,
+    kOutOfAmmo,
+    kOutOfHealth,
     kGameWon
 };
 
@@ -41,8 +44,9 @@ private:
     void DrawStats();
     GameState game_state;
     void DrawIntroduction();
-    void DrawWinScreen();
-    void DrawLoseScreen();
+    void DrawEndScreen();
+    void DrawDamageDealtDescription();
+    void DrawDamageReceivedDescription();
 };
 
 }  // namespace myapp

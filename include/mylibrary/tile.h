@@ -11,9 +11,9 @@ using std::string;
 class Tile {
 public:
     Tile();
-    Tile(const string& map_type, const string& dynamic_type);
-    void setMapType(const string& map_type_input);
-    void setDynamicType(const string& dynamic_type_input);
+    Tile(const string& map_type, const string& dynamic_type, size_t col, size_t row);
+    void SetMapType(const string& map_type_input);
+    void SetDynamicType(const string& dynamic_type_input);
     cinder::gl::Texture2dRef GetStillMapImage();
     bool IsSolid();
     bool IsDynamic();
@@ -28,8 +28,14 @@ public:
     void Remove();
     string GetDescription();
     string GetInteractionInstructions();
+    size_t GetXTile();
+    size_t GetYTile();
+    void SetXTile(size_t col);
+    void SetYTile(size_t row);
 
 private:
+    size_t x_tile;
+    size_t y_tile;
     string map_type;
     string dynamic_type;
     bool is_solid;

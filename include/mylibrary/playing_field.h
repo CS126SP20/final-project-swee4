@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <mylibrary/tile.h>
+#include <mylibrary/final_boss.h>
 
 namespace mylibrary {
 using std::string;
@@ -13,7 +14,7 @@ using std::vector;
 class PlayingField {
 public:
     PlayingField();
-    PlayingField(const string& file_name);
+    explicit PlayingField(const string& file_name);
     size_t GetMaxXTiles();
     size_t GetMaxYTiles();
     size_t GetXStartPixel(size_t current_x_tile);
@@ -26,7 +27,11 @@ public:
     bool operator==(const PlayingField& rhs);
     void Reveal(size_t x_index, size_t y_index);
     void Remove(size_t x_index, size_t y_index);
-    vector<Tile> GetBossTiles();
+    FinalBoss GetFinalBoss();
+    void DealBossDamage(size_t damage_value);
+    void SetBossAttackMode();
+    void SetBossDefaultMode();
+    size_t GetAmmoCount();
 
 private:
     vector<vector<Tile>> tiles;
@@ -35,6 +40,9 @@ private:
     size_t max_y_tiles;
     void SetupTiles();
     vector<Tile> boss_tiles;
+    FinalBoss final_boss;
+    bool is_final_boss_present;
+    size_t ammo_count;
 };
 }  // namespace mylibrary
 

@@ -51,8 +51,18 @@
 - **5/5/20**
     - [x] Implement dynamic type "END" functionality to link the win state of the game.
     - [x] Create a win state for the game. 
-    - [ ] Create a loss state for the game.
-    - [ ] Implement the final boss logic.
+    
+- **5/6/20**
+    - [x] Create a final boss class. 
+    - [x] Create dynamic type "BOS" to track the tiles that Boss occupies.
+    - [x] Create an out of ammo loss state for the game.
+    - [x] Create an out of health loss state for the game.
+    - [x] Implement the final boss logic.
+    - [x] Implement enums to track game state.
+    - [x] Game structure is finished.
+    - [ ] Update all sprites to be correct representations of items, enemies 
+    and creatures.
+    - [ ] Add music and sound effects to the game. 
     
 Ongoing: 
 - [ ] Implement Initializer Lists in Playing Field Constructor.

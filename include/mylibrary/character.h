@@ -34,6 +34,8 @@ public:
     size_t GetTotalHP();
     size_t GetCurrentHP();
     size_t GetCurrentAmmoCount();
+    void TakeDamage(size_t damage_value);
+
     private:
     size_t current_x_tile;
     size_t current_y_tile;

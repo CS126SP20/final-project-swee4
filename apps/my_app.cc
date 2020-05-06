@@ -26,6 +26,9 @@ const size_t kDescriptionTileWidth = 7;
 const size_t kInventoryTileWidth = 2;
 const size_t kStatsTileWidth = 3;
 
+    bool is_action_queued = false;
+    size_t total_ammo_available;
+
     cinder::ciAnimatedGifRef sized_32;
     cinder::ciAnimatedGifRef sized_64;
 
@@ -40,11 +43,21 @@ void MyApp::setup() {
     scene_two = mylibrary::PlayingField("stage_two.txt");
     current_scene = scene_one;
     beemo = mylibrary::Character(1,8,64,"beemo right.gif");
+    total_ammo_available = scene_one.GetAmmoCount() + scene_two.GetAmmoCount();
+
     sized_32 = cinder::ciAnimatedGif::create( ci::app::loadAsset("32 scaled.gif"));
     sized_64 = cinder::ciAnimatedGif::create( ci::app::loadAsset("64 scaled.gif"));
 }
 
 void MyApp::update() {
+    if (is_action_queued) {
+        if (game_state == GameState::kDealDamage) {
+            current_scene.DealBossDamage(beemo.GetTotalAP());
+        } else if (game_state == GameState::kTakeDamage) {
+            beemo.TakeDamage(current_scene.GetFinalBoss().GetDamage());
+        }
+        is_action_queued = false;
+    }
 }
 
 void MyApp::draw() {
@@ -53,8 +66,13 @@ void MyApp::draw() {
     if (game_state == GameState::kIntroduction) {
         DrawIntroduction();
     } else if (game_state == GameState::kPlaying) {
+        if (current_scene.GetFinalBoss().GetCurrentHealth() != 0 && total_ammo_available == 0) {
+            game_state = GameState::kOutOfAmmo;
+        }
+        if (beemo.GetCurrentHP() == 0) {
+            game_state = GameState::kOutOfHealth;
+        }
         cinder::gl::clear();
-
         DrawDescription();
         DrawInventory();
         DrawStats();
@@ -62,7 +80,31 @@ void MyApp::draw() {
         beemo.GetImage()->draw(beemo.GetXStartPixel(),beemo.GetYStartPixel(),
                                beemo.GetXEndPixel(), beemo.GetYEndPixel());
     } else if (game_state == GameState::kGameWon) {
-        DrawWinScreen();
+        DrawEndScreen();
+    } else if (game_state == GameState::kDealDamage) {
+        cinder::gl::clear();
+        DrawDamageDealtDescription();
+        DrawInventory();
+        DrawStats();
+        current_scene.draw();
+        beemo.GetImage()->draw(beemo.GetXStartPixel(),beemo.GetYStartPixel(),
+                               beemo.GetXEndPixel(), beemo.GetYEndPixel());
+    } else if (game_state == GameState::kTakeDamage) {
+        if (current_scene.GetFinalBoss().GetCurrentHealth() == 0) {
+            game_state = GameState::kPlaying;
+        } else {
+            cinder::gl::clear();
+            DrawDamageReceivedDescription();
+            DrawInventory();
+            DrawStats();
+            current_scene.draw();
+            beemo.GetImage()->draw(beemo.GetXStartPixel(), beemo.GetYStartPixel(),
+                                   beemo.GetXEndPixel(), beemo.GetYEndPixel());
+        }
+    } else if (game_state == GameState::kOutOfHealth) {
+        DrawEndScreen();
+    } else if (game_state == GameState::kOutOfAmmo) {
+        DrawEndScreen();
     }
 }
 
@@ -82,7 +124,7 @@ void MyApp::DrawIntroduction() {
             .text("Welcome to Beemo's Adventures!"
                   "\n\n You are playing as BEEMO, the cute little League of Legends champion."
                   "\n\n You are on a mission to save your good friend, a PORO! In order to defeat the game, you must "
-                  "beat the final obstacle, the NEXUS TURRET."
+                  "defeat the NEXUS TURRET."
                   "\n\n You can collect items that are hidden on the map for special buffs. Once you pick up an item, "
                   "you cannot drop it. And remember, you only have a maximum of 6 item slots. Defeating MINIONS will "
                   "reveal items with stronger buffs than those hidden elsewhere. However, choose wisely, because "
@@ -93,35 +135,46 @@ void MyApp::DrawIntroduction() {
                   "\n\n\nAre you ready to begin your adventures?"
                   "\nPress [SPACE] or [E] to start.");
 
-
     const auto box_size = box.getSize();
-    const cinder::vec2 locp = {0,0};
+    const cinder::vec2 top_left_point = {0,0};
     const auto surface = box.render();
     const auto texture = cinder::gl::Texture::create(surface);
-    cinder::gl::draw(texture, locp);
+    cinder::gl::draw(texture, top_left_point);
 }
 
-    void MyApp::DrawWinScreen() {
-        ci::gl::clear();
-        const size_t font_height = 50;
-        const cinder::ivec2 size = {kPlayingFieldTileWidth * kTilePixelLength, (kTextTileHeight + kPlayingFieldTileHeight) * kTilePixelLength};
-        const Color color = Color::white();
-
-        cinder::gl::color(color);
-        auto box = TextBox()
-                .alignment(TextBox::CENTER)
-                .font(cinder::Font("Arial", font_height))
-                .size(size)
-                .color(color)
-                .backgroundColor(ColorA(0, 0, 0, 0))
-                .text("CONGRATULATIONS! \n You saved the PORO! <3");
-
-        const auto box_size = box.getSize();
-        const cinder::vec2 locp = {0,0};
-        const auto surface = box.render();
-        const auto texture = cinder::gl::Texture::create(surface);
-        cinder::gl::draw(texture, locp);
+void MyApp::DrawEndScreen() {
+    string text_to_print;
+    if (game_state == GameState::kOutOfHealth) {
+        text_to_print = "You ran out of HEALTH! As you collapse to the ground, you see the "
+                        "PORO crying quietly in the corner. "
+                        "\nYou have no way of saving it. It will spend its days stuck in the enemy base. :(";
+    } else if (game_state == GameState::kOutOfAmmo) {
+        text_to_print = "You ran out of BEES! There is no way for you to defeat the NEXUS TURRET now."
+                        "\nThe PORO cries quietly in the corner -- you have no way of saving it. :(";
+    } else if (game_state == GameState::kGameWon) {
+        text_to_print = "CONGRATULATIONS! \n You saved the PORO! <3";
     }
+
+    ci::gl::clear();
+    const size_t font_height = 50;
+    const cinder::ivec2 size = {getWindowWidth(), getWindowHeight() / 2};
+    const Color color = Color::white();
+
+    cinder::gl::color(color);
+    auto box = TextBox()
+            .alignment(TextBox::CENTER)
+            .font(cinder::Font("Arial", font_height))
+            .size(size)
+            .color(color)
+            .backgroundColor(ColorA(0, 0, 0, 0))
+            .text(text_to_print);
+
+    const auto box_size = box.getSize();
+    const cinder::vec2 top_left_point = {0, 0};
+    const auto surface = box.render();
+    const auto texture = cinder::gl::Texture::create(surface);
+    cinder::gl::draw(texture, top_left_point);
+}
 
 void MyApp::DrawDescription() {
     const size_t font_height = 30;
@@ -133,9 +186,15 @@ void MyApp::DrawDescription() {
             !GetFrontTile().IsUndiscovered() && GetFrontTile().IsDynamic()) {
             text_to_print = GetFrontTile().GetDescription() +
                     "\n\nYou have no more room in your inventory! You cannot pick up any more items.";
+        } else if (GetFrontTile().GetDynamicType() == "BOS") {
+            text_to_print = current_scene.GetFinalBoss().GetDescription() +
+                            current_scene.GetFinalBoss().GetInteractionInstructions();
         } else {
             text_to_print = GetFrontTile().GetDescription() + GetFrontTile().GetInteractionInstructions();
         }
+    } else if (GetFrontTile().GetDynamicType() == "BOS") {
+        text_to_print = current_scene.GetFinalBoss().GetDescription() +
+                        current_scene.GetFinalBoss().GetInteractionInstructions();
     } else {
         text_to_print = GetFrontTile().GetDescription() + GetFrontTile().GetInteractionInstructions();
     }
@@ -151,11 +210,71 @@ void MyApp::DrawDescription() {
 
 
     const auto box_size = box.getSize();
-    const cinder::vec2 locp = {0, kPlayingFieldTileHeight * kTilePixelLength};
+    const cinder::vec2 top_left_point = {0, kPlayingFieldTileHeight * kTilePixelLength};
     const auto surface = box.render();
     const auto texture = cinder::gl::Texture::create(surface);
-    cinder::gl::draw(texture, locp);
+    cinder::gl::draw(texture, top_left_point);
 }
+
+void MyApp::DrawDamageDealtDescription() {
+        const size_t font_height = 30;
+        const cinder::ivec2 size = {kDescriptionTileWidth * kTilePixelLength, kTextTileHeight * kTilePixelLength};
+        const Color color = Color::white();
+        string text_to_print;
+        if (current_scene.GetFinalBoss().GetCurrentHealth() == 0) {
+            text_to_print = "You deal " + std::to_string(beemo.GetTotalAP()) + " damage!"
+                            "\nYou defeated the NEXUS TURRET!"
+                            "\nPress [SPACE] or [E] to continue.";
+        } else {
+            text_to_print = "You deal " + std::to_string(beemo.GetTotalAP()) + " damage!"
+                            "\nThe NEXUS TURRET is now at " +
+                            std::to_string(current_scene.GetFinalBoss().GetCurrentHealth()) + " HP. "
+                            "\nPress [SPACE] or [E] to continue.";
+        }
+
+
+        cinder::gl::color(color);
+        auto box = TextBox()
+                .alignment(TextBox::CENTER)
+                .font(cinder::Font("Arial", font_height))
+                .size(size)
+                .color(color)
+                .backgroundColor(ColorA(0, 0, 0, 0))
+                .text(text_to_print);
+
+
+        const auto box_size = box.getSize();
+        const cinder::vec2 top_left_point = {0, kPlayingFieldTileHeight * kTilePixelLength};
+        const auto surface = box.render();
+        const auto texture = cinder::gl::Texture::create(surface);
+        cinder::gl::draw(texture, top_left_point);
+    }
+
+    void MyApp::DrawDamageReceivedDescription() {
+        const size_t font_height = 30;
+        const cinder::ivec2 size = {kDescriptionTileWidth * kTilePixelLength, kTextTileHeight * kTilePixelLength};
+        const Color color = Color::white();
+        string text_to_print;
+        text_to_print = "The NEXUS TURRET deals " + std::to_string(current_scene.GetFinalBoss().GetDamage()) + " damage! "
+                        "You are now at " + std::to_string(beemo.GetCurrentHP()) + " HP."
+                        "\n Press [SPACE] or [E] to continue.";
+
+        cinder::gl::color(color);
+        auto box = TextBox()
+                .alignment(TextBox::CENTER)
+                .font(cinder::Font("Arial", font_height))
+                .size(size)
+                .color(color)
+                .backgroundColor(ColorA(0, 0, 0, 0))
+                .text(text_to_print);
+
+
+        const auto box_size = box.getSize();
+        const cinder::vec2 top_left_point = {0, kPlayingFieldTileHeight * kTilePixelLength};
+        const auto surface = box.render();
+        const auto texture = cinder::gl::Texture::create(surface);
+        cinder::gl::draw(texture, top_left_point);
+    }
 
     void MyApp::DrawStats() {
         const size_t font_height = 25;
@@ -177,11 +296,11 @@ void MyApp::DrawDescription() {
 
 
         const auto box_size = box.getSize();
-        const cinder::vec2 locp = {(kPlayingFieldTileWidth - kStatsTileWidth) * kTilePixelLength,
+        const cinder::vec2 top_left_point = {(kPlayingFieldTileWidth - kStatsTileWidth) * kTilePixelLength,
                                    kPlayingFieldTileHeight * kTilePixelLength};
         const auto surface = box.render();
         const auto texture = cinder::gl::Texture::create(surface);
-        cinder::gl::draw(texture, locp);
+        cinder::gl::draw(texture, top_left_point);
 }
 
 void MyApp::DrawInventory() {
@@ -200,18 +319,17 @@ void MyApp::DrawInventory() {
 
 
     const auto box_size = box.getSize();
-    const cinder::vec2 locp = {kDescriptionTileWidth * kTilePixelLength,
+    const cinder::vec2 top_left_point = {kDescriptionTileWidth * kTilePixelLength,
                                kPlayingFieldTileHeight * kTilePixelLength};
     const auto surface = box.render();
     const auto texture = cinder::gl::Texture::create(surface);
-    cinder::gl::draw(texture, locp);
+    cinder::gl::draw(texture, top_left_point);
     size_t inventory_size = beemo.GetInventory().size();
     size_t counter = 0;
     size_t x_start = kDescriptionTileWidth * kTilePixelLength;
     size_t y_start = (kPlayingFieldTileHeight + 1) * kTilePixelLength;
     if (inventory_size > 0) {
         //beemo.GetInventory()[0].GetImage()->draw(448, 640 - 64, 512, 704 - 64);
-
 
         for (size_t row = 0; row < 3; row ++) {
             size_t y_end = y_start + kTilePixelLength;
@@ -322,6 +440,18 @@ void MyApp::keyDown(KeyEvent event) {
         if (event.getCode() == KeyEvent::KEY_SPACE || event.getCode() == KeyEvent::KEY_e) {
             game_state = GameState::kPlaying;
         }
+    } else if (game_state == GameState::kDealDamage) {
+        if (event.getCode() == KeyEvent::KEY_SPACE || event.getCode() == KeyEvent::KEY_e) {
+            is_action_queued = true;
+            beemo.SetImage(beemo.GetOrientation());
+            current_scene.SetBossAttackMode();
+            game_state = GameState::kTakeDamage;
+        }
+    } else if (game_state == GameState::kTakeDamage) {
+        if (event.getCode() == KeyEvent::KEY_SPACE || event.getCode() == KeyEvent::KEY_e) {
+            current_scene.SetBossDefaultMode();
+            game_state = GameState::kPlaying;
+        }
     } else if (game_state == GameState::kPlaying) {
         switch (event.getCode()) {
             case KeyEvent::KEY_UP:
@@ -381,6 +511,7 @@ void MyApp::keyDown(KeyEvent event) {
                 } else if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
                     beemo.UseAmmo();
                     beemo.AttackMode();
+                    total_ammo_available--;
                     current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
                 } else if (GetFrontTile().GetDynamicType() == "BEE") {
                     beemo.Grab(GetFrontTile().GetItem());
@@ -388,6 +519,12 @@ void MyApp::keyDown(KeyEvent event) {
                 } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
                     beemo.Grab(GetFrontTile().GetItem());
                     current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+                } else if (GetFrontTile().GetDynamicType() == "BOS" && beemo.GetCurrentAmmoCount() > 0) {
+                    beemo.UseAmmo();
+                    beemo.AttackMode();
+                    total_ammo_available--;
+                    game_state = GameState::kDealDamage;
+                    is_action_queued = true;
                 }
                 break;
             }
@@ -395,7 +532,14 @@ void MyApp::keyDown(KeyEvent event) {
                 if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
                     beemo.UseAmmo();
                     beemo.AttackMode();
+                    total_ammo_available--;
                     current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+                } else if (GetFrontTile().GetDynamicType() == "BOS" && beemo.GetCurrentAmmoCount() > 0) {
+                    beemo.UseAmmo();
+                    beemo.AttackMode();
+                    total_ammo_available--;
+                    game_state = GameState::kDealDamage;
+                    is_action_queued = true;
                 }
                 break;
             }

@@ -15,15 +15,19 @@ Tile::Tile() {
     is_teleport = false;
     description = "";
     interaction_instructions = "";
+    x_tile = 0;
+    y_tile = 0;
 }
 
-Tile::Tile(const string& map_type_input, const string& dynamic_type_input) {
-    setMapType(map_type_input);
-    setDynamicType(dynamic_type_input);
+Tile::Tile(const string& map_type_input, const string& dynamic_type_input, size_t col, size_t row) {
+    SetMapType(map_type_input);
+    SetDynamicType(dynamic_type_input);
     item = Item(dynamic_type_input);
+    x_tile = col;
+    y_tile = row;
 }
 
-void Tile::setMapType(const string& map_type_input) {
+void Tile::SetMapType(const string& map_type_input) {
     map_type = map_type_input;
     description = "";
     interaction_instructions = "";
@@ -48,7 +52,7 @@ void Tile::setMapType(const string& map_type_input) {
     }
 }
 
-void Tile::setDynamicType(const string& dynamic_type_input) {
+void Tile::SetDynamicType(const string& dynamic_type_input) {
     dynamic_type = dynamic_type_input;
     is_undiscovered = false;
     is_undefeated = false;
@@ -56,6 +60,9 @@ void Tile::setDynamicType(const string& dynamic_type_input) {
     is_teleport = false;
     if (dynamic_type_input == " . ") {
         dynamic_image = nullptr;
+    } else if (dynamic_type_input == "BOS") {
+        dynamic_image = nullptr;
+        is_solid = true;
     } else if (dynamic_type_input == "TEL") {
         is_teleport = true;
         dynamic_image = nullptr;
@@ -93,6 +100,21 @@ void Tile::setDynamicType(const string& dynamic_type_input) {
     }
 }
 
+    size_t Tile::GetXTile() {
+    return x_tile;
+}
+
+    size_t Tile::GetYTile() {
+    return y_tile;
+}
+
+    void Tile::SetXTile(size_t col) {
+    x_tile = col;
+}
+
+    void Tile::SetYTile(size_t row) {
+    y_tile = row;
+}
 
 cinder::gl::Texture2dRef Tile::GetStillMapImage() {
     return still_map_image;
