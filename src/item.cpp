@@ -3,53 +3,37 @@
 #include <mylibrary/item.h>
 
 namespace mylibrary {
-Item::Item() {
-    buff_acronym = "NA";
-    buff = "none";
-    image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed.gif"));
-    value = 0;
-}
+
+    const string kAbilityPowerAcronym = "AP";
+
+    const string kHealthAcronym = "HP";
+
+    const string kAmmunitionAcronym = "BE";
+
+Item::Item() :
+    buff_acronym (""),
+    buff(""),
+    value(0)
+    {image = cinder::ciAnimatedGif::create( ci::app::loadAsset("dynamic_types/bee.gif"));}
 
 Item::Item(const string& dynamic_type) {
-    buff_acronym = dynamic_type.substr(0,2);
-    if (buff_acronym == "AP") {
+    size_t acronym_length = 2;
+    buff_acronym = dynamic_type.substr(0,acronym_length);
+    if (buff_acronym == kAbilityPowerAcronym) {
         buff = "ABILITY POWER";
-    } else if (buff_acronym == "HP") {
+    } else if (buff_acronym == kHealthAcronym) {
         buff = "HEALTH";
-    } else if (buff_acronym == "BE") {
+    } else if (buff_acronym == kAmmunitionAcronym) {
         buff = "AMMO";
     }
-
-    // these will all be assigned their respective images and values later
-    if (dynamic_type == "BEE") {
-        name = "BEE";
-        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("bee.gif"));
-        value = 1;
-    } else if (dynamic_type == "AP1") {
-        name = "BLASTING WAND";
-        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed.gif"));
-        value = 10;
-    } else if (dynamic_type == "AP2") {
-        name = "RABADON'S DEATHCAP";
-        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed 2.gif"));
-        value = 30;
-    } else if (dynamic_type == "HP1") {
-        name = "RUBY CRYSTAL";
-        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed.gif"));
-        value = 10;
-    } else if (dynamic_type == "HP2") {
-        name = "WARMOG'S ARMOR";
-        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed 2.gif"));
-        value = 30;
-    }
+    AssignNameImageAndValue(dynamic_type);
+    description = "It's a " + name + "! If you add this to your inventory, it will increase your " + buff + " by " +
+                  std::to_string(value) + "!";
+    interaction_instructions = "\nAdd it to your inventory by pressing [SPACE] or [E].";
 }
 
-cinder::ciAnimatedGifRef Item::GetImage() {
+cinder::ciAnimatedGifRef& Item::GetImage() {
     return image;
-}
-
-string Item::GetBuff() {
-    return buff;
 }
 
 string Item::GetBuffAcronym() {
@@ -61,12 +45,38 @@ size_t Item::GetValue() {
 }
 
 string Item::GetDescription() {
-    return "It's a " + name + "! If you add this to your inventory, it will increase your " + buff + " by " +
-           std::to_string(value) + "!";
+    return description;
 }
 
 string Item::GetInteractionInstructions() {
-    return "\nAdd it to your inventory by pressing [SPACE] or [E].";
+    return interaction_instructions;
+}
+
+void Item::AssignNameImageAndValue(const string& dynamic_type) {
+    const char sparkle_indicator = '1';
+    const char minion_indicator = '2';
+    // All items aside from the bee are sourced from: https://leagueoflegends.fandom.com/wiki/League_of_Legends_Wiki
+    if (dynamic_type == kAmmunitionAcronym + "E") {
+        name = "BEE";
+        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("dynamic_types/bee.gif"));
+        value = 1;
+    } else if (dynamic_type == kAbilityPowerAcronym + sparkle_indicator) {
+        name = "BLASTING WAND";
+        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("items/blasting wand.gif"));
+        value = 10;
+    } else if (dynamic_type == kAbilityPowerAcronym + minion_indicator) {
+        name = "RABADON'S DEATHCAP";
+        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("items/rabadon's deathcap.gif"));
+        value = 30;
+    } else if (dynamic_type == kHealthAcronym + sparkle_indicator) {
+        name = "RUBY CRYSTAL";
+        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("items/ruby crystal.gif"));
+        value = 10;
+    } else if (dynamic_type == kHealthAcronym + minion_indicator) {
+        name = "WARMOG'S ARMOR";
+        image = cinder::ciAnimatedGif::create( ci::app::loadAsset("items/warmog's armor.gif"));
+        value = 30;
+    }
 }
 
 }  // namespace mylibrary

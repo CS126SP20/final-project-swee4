@@ -4,50 +4,51 @@
 
 namespace mylibrary {
 
-Tile::Tile() {
-    still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("blank.png")));
-    dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo right.gif"));
-    item = Item();
-    is_solid = false;
-    is_dynamic = false;
-    is_undiscovered = false;
-    is_undefeated = false;
-    is_teleport = false;
-    description = "";
-    interaction_instructions = "";
-    x_tile = 0;
-    y_tile = 0;
-}
+Tile::Tile() :
+    still_map_image(cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/blank.png")))),
+    dynamic_image(cinder::ciAnimatedGif::create( ci::app::loadAsset("beemo/beemo right.gif"))),
+    item(Item()),
+    is_solid(false),
+    is_dynamic(false),
+    is_undiscovered(false),
+    is_undefeated(false),
+    is_teleport(false),
+    description(""),
+    interaction_instructions(""),
+    x_tile(0),
+    y_tile(0)
+    {}
 
-Tile::Tile(const string& map_type_input, const string& dynamic_type_input, size_t col, size_t row) {
+Tile::Tile(const string& map_type_input, const string& dynamic_type_input, size_t col, size_t row) :
+    item(Item(dynamic_type_input)),
+    x_tile(col),
+    y_tile(row)
+    {
     SetMapType(map_type_input);
     SetDynamicType(dynamic_type_input);
-    item = Item(dynamic_type_input);
-    x_tile = col;
-    y_tile = row;
-}
+    }
 
 void Tile::SetMapType(const string& map_type_input) {
     map_type = map_type_input;
     description = "";
     interaction_instructions = "";
     if (map_type == " . ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("grass.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/grass.png")));
         is_solid = false;
     } else if (map_type == " L ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("lane.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/lane.png")));
         is_solid = false;
     } else if (map_type == " H ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("horizontal wall.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/horizontal wall.png")));
         is_solid = true;
     } else if (map_type == " V ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("vertical wall.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/vertical wall.png")));
         is_solid = true;
     } else if (map_type == " R ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("river.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/river.png")));
         is_solid = true;
     } else if (map_type == "   ") {
-        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("blank.png")));
+        still_map_image = cinder::gl::Texture2d::create(loadImage(ci::app::loadAsset("map_types/blank.png")));
         is_solid = false;
     }
 }
@@ -67,12 +68,11 @@ void Tile::SetDynamicType(const string& dynamic_type_input) {
         is_teleport = true;
         dynamic_image = nullptr;
     } else if (dynamic_type_input == "END") {
-        //TODO: make this a poro
         is_dynamic = true;
         is_solid = true;
-        dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("temp revealed 2.gif"));
+        dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("poro crying.gif"));
         description = "Your friend, the PORO!";
-        interaction_instructions = "\nHug them by pressing [SPACE] or [E].";
+        interaction_instructions = "\nPress [SPACE] or [E] to continue.";
     } else if (dynamic_type_input == "BEE") {
             is_dynamic = true;
             //should be bee gif
@@ -86,12 +86,12 @@ void Tile::SetDynamicType(const string& dynamic_type_input) {
         is_solid = true;
         item = Item(dynamic_type);
         if (dynamic_type_input[2] == '1') {
-            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("sparkle.gif"));
+            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("dynamic_types/sparkle.gif"));
             is_undiscovered = true;
             description = "What's this? It seems like something is hidden here. ";
             interaction_instructions = "\nReveal it by pressing [SPACE] or [E].";
         } else if (dynamic_type_input[2] == '2') {
-            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("minion attack.gif"));
+            dynamic_image = cinder::ciAnimatedGif::create( ci::app::loadAsset("dynamic_types/minion attack.gif"));
             is_undefeated = true;
             description = "A MINION! You will need to use your BEES to fight them. "
                           "\nBut if you win, you will be lavishly rewarded! ";
@@ -100,27 +100,27 @@ void Tile::SetDynamicType(const string& dynamic_type_input) {
     }
 }
 
-    size_t Tile::GetXTile() {
+size_t Tile::GetXTile() {
     return x_tile;
 }
 
-    size_t Tile::GetYTile() {
+size_t Tile::GetYTile() {
     return y_tile;
 }
 
-    void Tile::SetXTile(size_t col) {
+void Tile::SetXTile(size_t col) {
     x_tile = col;
 }
 
-    void Tile::SetYTile(size_t row) {
+void Tile::SetYTile(size_t row) {
     y_tile = row;
 }
 
-cinder::gl::Texture2dRef Tile::GetStillMapImage() {
+cinder::gl::Texture2dRef& Tile::GetStillMapImage() {
     return still_map_image;
 }
 
-cinder::ciAnimatedGifRef Tile::GetDynamicImage() {
+cinder::ciAnimatedGifRef& Tile::GetDynamicImage() {
     return dynamic_image;
 }
 

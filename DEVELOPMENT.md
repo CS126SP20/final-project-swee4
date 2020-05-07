@@ -60,12 +60,10 @@
     - [x] Implement the final boss logic.
     - [x] Implement enums to track game state.
     - [x] Game structure is finished.
-    - [ ] Update all sprites to be correct representations of items, enemies 
+    - [x] Update all sprites to be correct representations of items, enemies 
     and creatures.
-    - [ ] Add music and sound effects to the game. 
+    - [x] Implement Initializer Lists in constructors.
+    
     
 Ongoing: 
-- [ ] Implement Initializer Lists in Playing Field Constructor.
-- [ ] Remove magic numbers.
-- [ ] Remove hard coded strings where possible.
-- [ ] Direction class to have the enum direction. 
+- [ ] Add music and sound effects to the game. 
