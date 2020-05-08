@@ -63,7 +63,11 @@
     - [x] Update all sprites to be correct representations of items, enemies 
     and creatures.
     - [x] Implement Initializer Lists in constructors.
-    
-    
-Ongoing: 
-- [ ] Add music and sound effects to the game. 
+   
+- **5/7/20**
+    - [x] Add music to be played in the background.
+    - [x] Allow music to be paused and played.
+    - [x] Update map visuals.
+    - [ ] Implement Restart button.
+    - [ ] Loop music in background if the game was not manually paused.
+    - [ ] Add sound effects to the game. 

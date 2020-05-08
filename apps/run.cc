@@ -1,14 +1,11 @@
-// Copyright (c) 2020 [Your Name]. All rights reserved.
+// Copyright (c) 2020 [Sue Wee]. All rights reserved.
 
 #include <cinder/app/App.h>
-#include <cinder/app/RendererGl.h>
-
 #include "beemos_rescue.h"
-
+#include <cinder/app/RendererGl.h>
 
 using cinder::app::App;
 using cinder::app::RendererGl;
-
 
 namespace myapp {
 
@@ -22,7 +19,6 @@ void SetUp(App::Settings* settings) {
 }
 
 }  // namespace myapp
-
 
 // This is a macro that runs the application.
 CINDER_APP(myapp::GameEngine,

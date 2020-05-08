@@ -1,6 +1,7 @@
 // Copyright (c) 2020 [Sue Wee]. All rights reserved.
 
 #include <cinder/app/App.h>
+#include <cinder/audio/audio.h>
 #include <cinder/gl/draw.h>
 #include <cinder/gl/gl.h>
 #include "cinder/gl/Texture.h"
@@ -32,19 +33,24 @@ const string kRight = "right";
 
 bool is_action_queued = false;
 size_t total_ammo_available;
+ci::audio::VoiceRef background_music;
 
 GameEngine::GameEngine() {
-    game_state = {GameState::kTitle};
+    game_state = GameState::kTitle;
 }
 
 void GameEngine::setup() {
     ci::app::setWindowSize(kPlayingFieldTileWidth * kTilePixelLength,
-            (kPlayingFieldTileHeight + kTextTileHeight) * kTilePixelLength);
+                           (kPlayingFieldTileHeight + kTextTileHeight) * kTilePixelLength);
     scene_one = mylibrary::PlayingField("stage_one.txt", kTilePixelLength, kPlayingFieldTileWidth, kPlayingFieldTileHeight);
     scene_two = mylibrary::PlayingField("stage_two.txt", kTilePixelLength, kPlayingFieldTileWidth, kPlayingFieldTileHeight);
     current_scene = scene_one;
     beemo = mylibrary::Character(1,8,64,"beemo/beemo right.gif");
     total_ammo_available = scene_one.GetAmmoCount() + scene_two.GetAmmoCount();
+
+    ci::audio::SourceFileRef sourceFile = ci::audio::load( ci::app::loadAsset( "teemo i love you.mp3"));
+    background_music = ci::audio::Voice::create(sourceFile);
+    background_music->start();
 }
 
 void GameEngine::update() {
@@ -89,6 +95,13 @@ void GameEngine::draw() {
 }
 
 void GameEngine::keyDown(KeyEvent event) {
+    if (event.getCode() == KeyEvent::KEY_m) {
+        if (background_music->isPlaying()) {
+            background_music->stop();
+        } else {
+            background_music->start();
+        }
+    }
     if (game_state == GameState::kTitle) {
         if (event.getCode() == KeyEvent::KEY_SPACE || event.getCode() == KeyEvent::KEY_e) {
             game_state = GameState::kInstructions;
@@ -131,18 +144,18 @@ void GameEngine::DrawIntroduction() {
                                 (kTextTileHeight + kPlayingFieldTileHeight) * kTilePixelLength};
     const Color color = Color::white();
     string text_to_print("INSTRUCTIONS"
-                          "\n\n You are playing as BEEMO, the cute little League of Legends champion."
-                          "\n\n You are on a mission to save your good friend, a PORO! In order to defeat the game, "
-                          "you must defeat the NEXUS TURRET."
-                          "\n\n You can collect items that are hidden on the map for special buffs. Once you pick up "
-                          "an item, you cannot drop it. And remember, you only have a maximum of 6 item slots. "
-                          "Defeating MINIONS will reveal items with stronger buffs than those hidden elsewhere. "
-                          "However, choose wisely, because if you expend all your BEES on the MINIONS, you will not "
-                          "have enough to fight the NEXUS TURRET in the end."
-                          "\n\n Use [WASD] or the [ARROW KEYS] to move. Use [SPACE] or [Q] to attack or uncover "
-                          "objects, and [SPACE] or [E] to add objects to your inventory."
-                          "\n\n\nAre you ready to begin your adventures?"
-                          "\nPress [SPACE] or [E] to start.");
+                         "\n\n You are playing as BEEMO, the cute little League of Legends champion."
+                         "\n\n You are on a mission to save your good friend, a PORO! In order to defeat the game, "
+                         "you must defeat the NEXUS TURRET."
+                         "\n\n You can collect items that are hidden on the map for special buffs. Once you pick up "
+                         "an item, you cannot drop it. And remember, you only have a maximum of 6 item slots. "
+                         "Defeating MINIONS will reveal items with stronger buffs than those hidden elsewhere. "
+                         "However, choose wisely, because if you expend all your BEES on the MINIONS, you will not "
+                         "have enough to fight the NEXUS TURRET in the end."
+                         "\n\n Use [WASD] or the [ARROW KEYS] to move. Use [SPACE] or [Q] to attack or uncover "
+                         "objects, and [SPACE] or [E] to add objects to your inventory. Press [M] to start/stop the music."
+                         "\n\n\nAre you ready to begin your adventures?"
+                         "\nPress [SPACE] or [E] to start.");
     const cinder::vec2 top_left_point = {0,0};
     DrawTextBox(font_height, size, color, text_to_print, top_left_point);
 }
@@ -221,7 +234,7 @@ void GameEngine::DrawEndImage() {
 
 bool GameEngine::IsFrontTileBuff() {
     return (GetFrontTile().GetDynamicType() != "BEE" && GetFrontTile().GetDynamicType() != "END" &&
-    !GetFrontTile().IsUndefeated() && !GetFrontTile().IsUndiscovered() && GetFrontTile().IsDynamic());
+            !GetFrontTile().IsUndefeated() && !GetFrontTile().IsUndiscovered() && GetFrontTile().IsDynamic());
 }
 
 bool GameEngine::IsFrontTileBoss() {
@@ -259,20 +272,20 @@ string GameEngine::GetDescriptionText() {
     return text_to_print;
 }
 
-    void GameEngine::DrawTextBox(size_t font_height, const cinder::ivec2& size, const Color& color,
-                                 const string& text_to_print, const cinder::vec2& top_left_point) {
-        cinder::gl::color(color);
-        auto box = TextBox()
-                .alignment(TextBox::CENTER)
-                .font(cinder::Font("Arial", font_height))
-                .size(size)
-                .color(color)
-                .backgroundColor(ColorA(0, 0, 0, 0))
-                .text(text_to_print);
-        const auto box_size = box.getSize();
-        const auto surface = box.render();
-        const auto texture = cinder::gl::Texture::create(surface);
-        cinder::gl::draw(texture, top_left_point);
+void GameEngine::DrawTextBox(size_t font_height, const cinder::ivec2& size, const Color& color,
+                             const string& text_to_print, const cinder::vec2& top_left_point) {
+    cinder::gl::color(color);
+    auto box = TextBox()
+            .alignment(TextBox::CENTER)
+            .font(cinder::Font("Arial", font_height))
+            .size(size)
+            .color(color)
+            .backgroundColor(ColorA(0, 0, 0, 0))
+            .text(text_to_print);
+    const auto box_size = box.getSize();
+    const auto surface = box.render();
+    const auto texture = cinder::gl::Texture::create(surface);
+    cinder::gl::draw(texture, top_left_point);
 }
 
 void GameEngine::DrawDescription() {
@@ -296,7 +309,7 @@ void GameEngine::DrawStats() {
                            std::to_string(beemo.GetTotalHP()) + "\nAMMO (BEES): " +
                            std::to_string(beemo.GetCurrentAmmoCount());
     const cinder::vec2 top_left_point = {(kPlayingFieldTileWidth - kStatsTileWidth) * kTilePixelLength,
-                               kPlayingFieldTileHeight * kTilePixelLength};
+                                         kPlayingFieldTileHeight * kTilePixelLength};
     DrawTextBox(font_height, size, color, text_to_print, top_left_point);
 }
 
@@ -469,38 +482,38 @@ void GameEngine::GetPlayingStateResponse(const KeyEvent& event) {
     }
 }
 
-    void GameEngine::GetAttackResponse() {
-        if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
-            beemo.UseAmmo();
-            beemo.Uncover();
-            total_ammo_available--;
-            current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
-        } else if (GetFrontTile().GetDynamicType() == "BOS" && beemo.GetCurrentAmmoCount() > 0) {
-            beemo.UseAmmo();
-            beemo.Uncover();
-            total_ammo_available--;
-            game_state = GameState::kDealDamage;
-            is_action_queued = true;
-        }
+void GameEngine::GetAttackResponse() {
+    if (GetFrontTile().IsUndefeated() && beemo.GetCurrentAmmoCount() > 0) {
+        beemo.UseAmmo();
+        beemo.Uncover();
+        total_ammo_available--;
+        current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+    } else if (GetFrontTile().GetDynamicType() == "BOS" && beemo.GetCurrentAmmoCount() > 0) {
+        beemo.UseAmmo();
+        beemo.Uncover();
+        total_ammo_available--;
+        game_state = GameState::kDealDamage;
+        is_action_queued = true;
+    }
 }
 
-    void GameEngine::GetInteractResponse() {
-        if (GetFrontTile().GetDynamicType() == "END") {
-            game_state = GameState::kGameWon;
-        } else if (GetFrontTile().IsUndiscovered()) {
-            beemo.Uncover();
-            current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
-        } else if (GetFrontTile().GetDynamicType() == "BEE") {
-            beemo.Grab(GetFrontTile().GetItem());
-            current_scene.Remove(GetFrontTileX(), GetFrontTileY());
-        } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
-            beemo.Grab(GetFrontTile().GetItem());
-            current_scene.Remove(GetFrontTileX(), GetFrontTileY());
-        }
+void GameEngine::GetInteractResponse() {
+    if (GetFrontTile().GetDynamicType() == "END") {
+        game_state = GameState::kGameWon;
+    } else if (GetFrontTile().IsUndiscovered()) {
+        beemo.Uncover();
+        current_scene.Reveal(GetFrontTileX(), GetFrontTileY());
+    } else if (GetFrontTile().GetDynamicType() == "BEE") {
+        beemo.Grab(GetFrontTile().GetItem());
+        current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+    } else if (!beemo.IsInventoryFull() && GetFrontTile().IsDynamic() && !GetFrontTile().IsUndefeated()) {
+        beemo.Grab(GetFrontTile().GetItem());
+        current_scene.Remove(GetFrontTileX(), GetFrontTileY());
+    }
 }
 
-    void GameEngine::GetDirectionResponse(const string& direction) {
-        beemo.SetImage(direction);
+void GameEngine::GetDirectionResponse(const string& direction) {
+    beemo.SetImage(direction);
     if (direction == kUp) {
         if (CanMove(direction)) {
             beemo.SetYTile(beemo.GetYTile() - 1);
@@ -531,4 +544,6 @@ void GameEngine::GetPlayingStateResponse(const KeyEvent& event) {
         }
     }
 }
+
 }  // namespace myapp
+
