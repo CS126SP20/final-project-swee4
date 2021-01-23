@@ -6,7 +6,7 @@
 - Installation
 - Citations
 
-###Overview
+### Overview
 Play as Beemo, a League of Legends character who must go along his way and
 collect items and defeat enemies to reach the other side of the map and save
 his friend, the Poro, only by defeating the final boss, the Nexus Turret!
@@ -14,13 +14,13 @@ Uncover sparkles to reveal basic items that can
 boost his initial stats, defeat minions to gain better items with stronger
 stat boosts, and collect bees to fuel his attacks!
 
-###Installation
+### Installation
 In order to run this project:
 - Clone it from GitHub at https://github.com/CS126SP20/final-project-swee4
 - Make sure that Cinder is built and able to run.
 - Run the beemos_rescue.cc code.
 
-###Citations
+### Citations
 - This project uses the external library [ciAnimatedGif](https://github.com/cwhitney/ciAnimatedGif)
 from cwhitney, which allows animated gifs to play.
 - Certain images were sourced from the League of Legends game, through its
